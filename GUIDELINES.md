@@ -39,7 +39,7 @@ upstream's history and authors out of this repo.
    git apply -3 /tmp/upstream.patch
    ```
 
-4. If a file we changed conflicts, keep upstream's fix and our `TATVA:` lines both.
+4. If a file we changed conflicts, business priority decides; keep our `TATVA:` lines unless upstream now does the job.
 5. Build and check it as in "Make a change".
 6. Commit as yourself: `fix(upstream): <what it fixes> (frappe/helpdesk <commit>)`.
 7. Update "Last upstream patch taken" in [`CUSTOMIZATIONS.md`](CUSTOMIZATIONS.md).
