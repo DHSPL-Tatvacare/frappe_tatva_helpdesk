@@ -49,7 +49,7 @@ upstream's history and authors out of this repo.
 The same steps, with a patch between two tags:
 
 ```bash
-git -C ../_upstream/helpdesk diff v1.30.1 <new tag> > /tmp/upgrade.patch
+git -C ../_upstream/helpdesk diff <baseline tag> <new tag> -- . ':!.github' > /tmp/upgrade.patch
 git apply -3 /tmp/upgrade.patch
 ```
 
