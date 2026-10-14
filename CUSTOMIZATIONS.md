@@ -37,9 +37,13 @@ install the app from the `prod` branch through `apps.json` in `frappe_tatva_conn
 | `.mergify.yml` | Upstream's merge bot |
 | `crowdin.yml` | Upstream's translation service |
 | `.releaserc` | Upstream's release versioning |
+| `.github/workflows/build.yml` | Publishes upstream's own image; ours is built from `frappe_tatva_connect`'s `Containerfile` |
+| `.github/workflows/lint.yml` | Runs only on pull requests; we use none |
+| `.github/workflows/server-tests.yml` | Runs only on pull requests; we use none |
+| `.github/helpers/install.sh`, `.github/helpers/site_config_mariadb.json` | Used only by `server-tests.yml` |
+| `.github/helpers/update_pot_file.sh` | Used only by the removed `generate-pot-file.yml` |
 
-`build.yml`, `lint.yml` and `server-tests.yml` stay. Build runs only on `main`, a tag or a manual start, and
-the other two run on pull requests.
+`.github/helpers/.flake8_strict` stays: `.pre-commit-config.yaml` reads it.
 
 ## Our files
 
