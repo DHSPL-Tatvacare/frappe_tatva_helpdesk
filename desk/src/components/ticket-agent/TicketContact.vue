@@ -28,10 +28,9 @@
         >
           #{{ ticket.doc.name }}
         </p>
-        <div class="flex items-center">
-          <span>{{
-            ticket.doc.via_customer_portal ? __("via Portal") : __("via Email")
-          }}</span>
+        <!-- TATVA: the ticket's own source, never a guessed Portal/Email -->
+        <div v-if="ticket.doc.custom_ticket_source" class="flex items-center">
+          <span>{{ __("via {0}", [ticket.doc.custom_ticket_source]) }}</span>
         </div>
       </div>
     </div>

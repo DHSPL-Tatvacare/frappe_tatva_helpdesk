@@ -149,13 +149,8 @@
                   <div class="w-[126px] text-sm text-ink-gray-5">
                     {{ __("Source") }}
                   </div>
-                  <div>
-                    {{
-                      ticket.doc?.via_customer_portal
-                        ? __("Portal")
-                        : __("Mail")
-                    }}
-                  </div>
+                  <!-- TATVA: the ticket's own source, never a guessed Portal/Mail -->
+                  <div>{{ ticket.doc?.custom_ticket_source }}</div>
                 </div>
                 <!-- Ticket Fields -->
                 <h3 class="px-6 pt-3 text-base-semibold">
