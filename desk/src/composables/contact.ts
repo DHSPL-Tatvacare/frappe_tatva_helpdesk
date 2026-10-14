@@ -281,10 +281,8 @@ export function useNewContact() {
       if (!data.doc.first_name) {
         throw new Error(__("First name is required"));
       }
-      if (!data.doc.email) {
-        throw new Error(__("Email address is required"));
-      }
-      if (!validateEmailWithZod(data.doc.email)) {
+      // TATVA: email is optional, many patients have none; a typed one must still be valid
+      if (data.doc.email && !validateEmailWithZod(data.doc.email)) {
         throw new Error(__("Invalid email address"));
       }
     },
@@ -316,7 +314,7 @@ export function useNewContact() {
   function addContact() {
     return addContactResource.submit({
       doc: parseContactData(),
-      invite: state.invite,
+      invite: state.invite && !!state.email, // TATVA: a tick left behind after the email is cleared invites no one
     });
   }
 
@@ -437,7 +435,7 @@ function getContactFieldConfig(newDoc: boolean = false): FieldConfigRow[] {
         key: "email",
         type: "email",
         label: __("Email"),
-        required: true,
+        required: false, // TATVA: email is optional, many patients have none
         placeholder: __("john.doe@example.com"),
       }
     : {

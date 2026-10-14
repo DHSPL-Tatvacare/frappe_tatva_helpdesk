@@ -24,6 +24,8 @@ install the app from the `prod` branch through `apps.json` in `frappe_tatva_conn
 | File | Change | Why |
 |---|---|---|
 | `README.md` | Replaced with TatvaCare's README | This repo is TatvaCare Helpdesk |
+| `desk/src/composables/contact.ts` | New contact: email is optional, checked only when typed, and an invite is sent only with one | Many patients have no email; a required one made agents type placeholders like `user@gmail.com` |
+| `desk/src/components/contact/NewContactDialog.vue` | "Invite as User" is greyed out until an email is typed | An invite goes by email, so without one there is nothing to send |
 
 ## Upstream files we removed
 

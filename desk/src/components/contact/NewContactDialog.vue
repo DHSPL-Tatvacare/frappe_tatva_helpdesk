@@ -91,10 +91,12 @@
             </template>
           </template>
 
+          <!-- TATVA: an invite goes by email, so it waits for one -->
           <Checkbox
             size="sm"
             v-model="state.invite"
             :label="__('Invite as User')"
+            :disabled="!state.email"
           />
 
           <div class="flex justify-end pt-1 gap-2">
