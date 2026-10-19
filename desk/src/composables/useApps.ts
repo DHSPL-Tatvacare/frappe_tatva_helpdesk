@@ -14,7 +14,7 @@ const deskApp: App = {
   name: "frappe",
   logo: "/assets/helpdesk/desk/desk.png",
   title: "Desk",
-  route: "/desk/helpdesk",
+  route: "/desk", // TATVA: Desk opens the desk home, not helpdesk's near-empty generated sidebar
 };
 
 interface AppsMenuOption {
