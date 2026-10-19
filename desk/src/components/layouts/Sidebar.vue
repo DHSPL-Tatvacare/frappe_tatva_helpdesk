@@ -64,6 +64,7 @@ import ShortcutsModal from "@/components/modals/ShortcutsModal.vue";
 import SettingsModal from "@/components/Settings/SettingsModal.vue";
 import { confirmLoginToFrappeCloud } from "@/composables/fc";
 import { useApps } from "@/composables/useApps";
+import { docsMenuOptions } from "@/tatva/docsMenu"; // TATVA: our handbook in the menu
 import { useScreenSize } from "@/composables/screen";
 import { showNewContactModal } from "@/pages/contact/dialogState";
 import {
@@ -151,16 +152,8 @@ const agentPortalDropdown = computed(() => [
       window.open(path.href);
     },
   },
-  {
-    icon: "lucide-life-buoy",
-    label: __("Support"),
-    onClick: () => window.open("https://t.me/frappedesk"),
-  },
-  {
-    icon: "lucide-book-open",
-    label: __("Docs"),
-    onClick: () => window.open("https://docs.frappe.io/helpdesk"),
-  },
+  // TATVA: Docs opens our own handbook (Tatva Platform Settings), none when unset; upstream's Support chat is not ours
+  ...docsMenuOptions.value,
   {
     label: __("Login to Frappe Cloud"),
     icon: FrappeCloudIcon,

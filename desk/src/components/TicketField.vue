@@ -154,6 +154,7 @@ const component = computed(() => {
     const linkProps = {
       doctype: props.field.options,
       redirectable: props.field.options in REDIRECT_ROUTES,
+      filters: props.field.filters, // TATVA: a field dependency narrows the picker
       class: "!w-full !bg-surface-base !border-transparent !text-base",
       onRedirect: handleRedirect,
     };

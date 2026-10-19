@@ -3,7 +3,8 @@
     <!-- Contact header + SLA, pinned above the scrollable sections. Uniform
          padding on the wrapper; the gap between them comes from space-y, not
          per-element bottom padding. -->
-    <div class="shrink-0 space-y-4 p-4">
+    <!-- TATVA: mobile shows its own contact and SLA above the panel -->
+    <div v-if="!hideHeader" class="shrink-0 space-y-4 p-4">
       <TicketContact />
       <TicketSLA />
     </div>
@@ -151,6 +152,7 @@
 
 <script setup lang="ts">
 import { parseField } from "@/composables/formCustomisation";
+import { followDependencies, narrowField } from "@/tatva/fieldDependencies"; // TATVA: field dependencies on an open ticket
 import { useNotifyTicketUpdate } from "@/composables/realtime";
 import { useShortcut } from "@/composables/shortcuts";
 import { getMeta } from "@/stores/meta";
@@ -175,6 +177,7 @@ import TicketContact from "./TicketContact.vue";
 import TicketFeedback from "./TicketFeedback.vue";
 import TicketSLA from "./TicketSLA.vue";
 
+defineProps<{ hideHeader?: boolean }>(); // TATVA: mobile reuses this panel below its own contact and SLA
 const ticket = inject(TicketSymbol)!;
 const assignees = inject(AssigneeSymbol)!;
 const customizations = inject(CustomizationSymbol)!;
@@ -313,7 +316,8 @@ function openTicket(name: string) {
 }
 
 function getFieldInFormat(fieldTemplate, fieldMeta) {
-  return {
+  // TATVA: a field a dependency narrows offers only what it allows
+  return narrowField(ticket.value.doc?.name, {
     label: fieldMeta?.label || fieldTemplate.fieldname,
     value: ticket.value.doc[fieldTemplate.fieldname],
     fieldtype: fieldMeta?.fieldtype,
@@ -331,7 +335,7 @@ function getFieldInFormat(fieldTemplate, fieldMeta) {
       fieldMeta.display_via_depends_on &&
       !fieldMeta.hidden &&
       (!!ticket.value.doc[fieldTemplate.fieldname] || !fieldMeta.read_only),
-  };
+  });
 }
 
 const normalize = (v: string | FieldValue) =>
@@ -354,6 +358,8 @@ function handleFieldUpdate(
         if (fieldname === "agent_group") {
           assignees.value.reload();
         }
+        // TATVA: the saved field's dependency scripts run, and a field they no longer allow is cleared
+        followDependencies(ticket.value.doc?.name, customizations.value.data, fieldname, value, ticket.value.doc, handleFieldUpdate);
       },
     }
   );

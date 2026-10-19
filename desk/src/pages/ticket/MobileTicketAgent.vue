@@ -128,12 +128,6 @@
                   :ticketId="ticket.doc?.name"
                   @email:open="communicationAreaRef.toggleEmailBox()"
                 />
-                <!-- feedback component -->
-                <TicketFeedback
-                  v-if="ticket.doc?.feedback_rating"
-                  class="border-b px-6 py-3 text-base text-gray-600"
-                  :ticket="ticket.doc"
-                />
                 <!-- SLA Section, hidden when no policy is attached -->
                 <template v-if="ticket.doc?.sla">
                   <h3 class="px-6 pt-3 text-base-semibold">
@@ -152,18 +146,8 @@
                   <!-- TATVA: the ticket's own source, never a guessed Portal/Mail -->
                   <div>{{ ticket.doc?.custom_ticket_source }}</div>
                 </div>
-                <!-- Ticket Fields -->
-                <h3 class="px-6 pt-3 text-base-semibold">
-                  {{ __("Details") }}
-                </h3>
-                <TicketAgentFields
-                  :ticket="ticketWithFields"
-                  @update="
-                    ({ field, value }) =>
-                      ticket.setValue.submit({ [field]: value })
-                  "
-                  class="!border-0"
-                />
+                <!-- TATVA: the desktop panel's Overview, More Details, feedback and similar tickets; its contact and SLA are above -->
+                <TicketDetailsTab hide-header />
               </div>
 
               <!-- Rest Activities -->
@@ -284,13 +268,13 @@ import CustomActions from "@/components/CustomActions.vue";
 import AssignTo from "@/components/ticket-agent/AssignTo.vue";
 import SetContactPhoneModal from "@/components/ticket/SetContactPhoneModal.vue";
 import TicketSLA from "@/components/ticket-agent/TicketSLA.vue";
-import TicketAgentFields from "@/components/ticket/TicketAgentFields.vue";
 import {
   createToast,
-  parseField,
   setupCustomizations,
 } from "@/composables/formCustomisation";
 import { useScreenSize } from "@/composables/screen";
+import { applyDependencies, dependencyContext } from "@/tatva/fieldDependencies"; // TATVA: field dependencies on an open ticket
+import TicketDetailsTab from "@/components/ticket-agent/TicketDetailsTab.vue"; // TATVA: mobile shows the desktop panel
 import { useActiveTabManager } from "@/composables/useActiveTabManager";
 import {
   reloadTicket,
@@ -298,7 +282,6 @@ import {
   useTicket,
 } from "@/composables/useTicket";
 import { globalStore } from "@/stores/globalStore";
-import { getMeta } from "@/stores/meta";
 import { useTelephonyStore } from "@/stores/telephony";
 import { useTicketStatusStore } from "@/stores/ticketStatus";
 import {
@@ -351,8 +334,6 @@ const customizations: Resource<Customizations> = createResource({
   auto: true,
 });
 
-// Build fields from getMeta + customizations (same as TicketDetailsTab)
-const { getField, getFields } = getMeta("HD Ticket");
 
 function updateField(name: string, value: string) {
   ticket.value.setValue.submit({ [name]: value });
@@ -366,12 +347,14 @@ const customizationCtx = computed(() => ({
   $dialog,
   updateField,
   createToast,
+  ...dependencyContext(ticket.value?.doc?.name), // TATVA: the scripts narrow fields on an open ticket too
 }));
 
 watchEffect(async () => {
   if (customizations.data) {
     await setupCustomizations(customizations.data, customizationCtx.value);
     customActions.value = [...(customizations.data?._customActions || [])];
+    applyDependencies(customizations.data, ticket.value?.doc); // TATVA: a loaded ticket starts narrowed
   }
 });
 
@@ -398,54 +381,7 @@ const mobileCustomActions = computed(() => {
   return [{ group: "Actions", hideLabel: true, options: items }];
 });
 
-const ticketFields = computed(() => {
-  if (!customizations.data || !ticket.value.doc) return [];
-  const fieldsMeta = getFields();
-  if (!fieldsMeta || fieldsMeta.length === 0) return [];
-
-  const coreFieldNames = [
-    "ticket_type",
-    "agent_group",
-    "priority",
-    "customer",
-    "subject",
-    "status",
-  ];
-  let custom_fields = customizations.data?.custom_fields || [];
-  custom_fields = custom_fields.filter(
-    (f) => !coreFieldNames.includes(f.fieldname)
-  );
-
-  return custom_fields
-    .map((f) => {
-      let fieldMeta = getField(f.fieldname);
-      if (!fieldMeta) return null;
-      fieldMeta = parseField(fieldMeta, ticket.value.doc);
-      return {
-        label: fieldMeta?.label || f.fieldname,
-        fieldname: f.fieldname,
-        fieldtype: fieldMeta?.fieldtype,
-        options: fieldMeta?.options || "",
-        placeholder:
-          f.placeholder || `Enter ${fieldMeta?.label || f.fieldname}`,
-        readonly: Boolean(fieldMeta.read_only),
-        disabled: Boolean(fieldMeta.read_only),
-        url_method: f.url_method || "",
-        required: f.required || fieldMeta?.reqd || false,
-        visible:
-          fieldMeta.display_via_depends_on &&
-          !fieldMeta.hidden &&
-          (!!ticket.value.doc[f.fieldname] || !fieldMeta.read_only),
-      };
-    })
-    .filter(Boolean);
-});
-
-// Merged ticket doc with computed fields for TicketAgentFields
-const ticketWithFields = computed(() => ({
-  ...ticket.value.doc,
-  fields: ticketFields.value,
-}));
+// TATVA: the field list lives in the desktop panel the Details tab now shows
 
 provide(TicketSymbol, ticket);
 provide(

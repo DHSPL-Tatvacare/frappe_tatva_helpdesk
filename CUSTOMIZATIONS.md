@@ -28,6 +28,13 @@ install the app from the `prod` branch through `apps.json` in `frappe_tatva_conn
 | `desk/src/components/contact/NewContactDialog.vue` | "Invite as User" is greyed out until an email is typed | An invite goes by email, so without one there is nothing to send |
 | `desk/src/components/ticket-agent/TicketContact.vue` | The header reads "via" the ticket's own Source, and nothing when it has none | Upstream knows only Portal or Email, so a phone ticket read "via Email" |
 | `desk/src/pages/ticket/MobileTicketAgent.vue` | The mobile Source row shows the ticket's own Source, blank when it has none | Same: upstream printed Portal or Mail for every ticket |
+| `desk/src/components/layouts/Sidebar.vue` | The menu's Docs opens our handbook from `tatva/docsMenu.ts`, and Support is gone | Upstream pointed at Frappe's public docs and Telegram chat |
+| `desk/src/components/layouts/MobileSidebar.vue` | Same Docs item and no Support, from the same `tatva/docsMenu.ts` | Mobile and desktop show one menu |
+| `desk/src/components/ticket-agent/TicketHeader.vue` | Form scripts on an open ticket get `applyFilters`, and run once on the loaded ticket (`tatva/fieldDependencies.ts`) | Upstream applied Field Dependencies only on the new-ticket page |
+| `desk/src/components/ticket-agent/TicketDetailsTab.vue` | Side-panel fields are narrowed by their dependency; a saved field runs its scripts and clears a field they no longer allow | Same |
+| `desk/src/pages/ticket/MobileTicketAgent.vue` | The Details tab shows the desktop panel (Overview, More Details, feedback, similar tickets) under its own contact, SLA and Source; form scripts get the same dependency context | Upstream's mobile list dropped Priority, Type, Customer and Tags, so they could not be seen or changed on a phone |
+| `desk/src/components/ticket-agent/TicketDetailsTab.vue` (2) | A `hideHeader` prop leaves out the contact and SLA header | Mobile already shows both above the panel |
+| `desk/src/components/TicketField.vue` | A Link field passes its `filters` to the picker | Lets a dependency narrow the picker on both panels |
 
 ## Upstream files we removed
 
@@ -56,6 +63,8 @@ install the app from the `prod` branch through `apps.json` in `frappe_tatva_conn
 | `CUSTOMIZATIONS.md` | This list |
 | `GUIDELINES.md` | How to change, take an upstream fix and release |
 | `.github/assets/tatva-logo.png` | The logo the README shows |
+| `desk/src/tatva/docsMenu.ts` | The Docs menu item: the wiki space Tatva Platform Settings names for `helpdesk`, hidden when none |
+| `desk/src/tatva/fieldDependencies.ts` | Field Dependencies on an open ticket: the scripts' `applyFilters`, the load and save runs, and the narrowed field; names no field |
 
 New code goes in `desk/src/tatva/` and is listed here when it is added.
 

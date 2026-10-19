@@ -47,6 +47,7 @@ import LucideSun from "~icons/lucide/sun";
 
 import { mobileSidebarOpened as sidebarOpened } from "@/composables/mobile";
 import { useApps } from "@/composables/useApps";
+import { docsMenuOptions } from "@/tatva/docsMenu"; // TATVA: our handbook in the menu
 import { __ } from "@/translation";
 import AppSidebar from "./AppSidebar.vue";
 import { useAgentStatusStore } from "@/stores/agentStatus";
@@ -112,16 +113,8 @@ const agentPortalDropdown = computed(() => [
       window.open(path.href);
     },
   },
-  {
-    icon: "lucide-life-buoy",
-    label: __("Support"),
-    onClick: () => window.open("https://t.me/frappedesk"),
-  },
-  {
-    icon: "lucide-book-open",
-    label: __("Docs"),
-    onClick: () => window.open("https://docs.frappe.io/helpdesk"),
-  },
+  // TATVA: Docs opens our own handbook (Tatva Platform Settings), none when unset; upstream's Support chat is not ours
+  ...docsMenuOptions.value,
   {
     label: __("Log out"),
     icon: "lucide-log-out",
