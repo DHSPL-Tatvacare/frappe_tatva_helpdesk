@@ -7,7 +7,29 @@
       @after-leave="reset"
     >
       <template #default>
-        <div class="space-y-4">
+        <!-- TATVA: the server found this person already; open them, or go back -->
+        <div v-if="existing" class="space-y-4">
+          <p class="text-base text-ink-gray-8">
+            {{ __("This contact already exists: {0}", [existing.existing]) }}
+          </p>
+          <Checkbox
+            v-if="existing.adds"
+            size="sm"
+            v-model="addDetails"
+            :label="__('Add the details you typed')"
+          />
+          <div class="flex justify-end pt-1 gap-2">
+            <Button :label="__('Cancel')" @click="existing = null" />
+            <Button
+              :label="__('Open Contact')"
+              theme="gray"
+              variant="solid"
+              :loading="isLoading"
+              @click="openExisting"
+            />
+          </div>
+        </div>
+        <div v-else class="space-y-4">
           <template
             v-for="fieldOrRow in fieldConfig"
             :key="
@@ -125,7 +147,8 @@ import PhoneControl from "../frappe-ui/PhoneControl/PhoneControl.vue";
 
 const open = defineModel<boolean>({ default: false });
 
-const { state, fieldConfig, addContact, isLoading, reset } = useNewContact();
+const { state, fieldConfig, addContact, existing, addDetails, openExisting, isLoading, reset } =
+  useNewContact(); // TATVA: existing, addDetails, openExisting for the already-exists step
 
 function handleAdd() {
   addContact();

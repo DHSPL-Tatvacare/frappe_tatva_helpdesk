@@ -223,15 +223,13 @@ export function useContact(name: string) {
       if (!data.doc.first_name?.trim()) {
         throw new Error(__("First name is required"));
       }
-      if (!data.doc.email_ids.length) {
-        throw new Error(__("At least one email address is required"));
-      }
+      // TATVA: email is optional on edit as on create; a typed one must still be valid
       for (const e of data.doc.email_ids) {
         if (!validateEmailWithZod(e.email_id)) {
           throw new Error(__("Invalid email address: {0}", [e.email_id]));
         }
       }
-      if (!data.doc.email_ids.some((e) => e.is_primary)) {
+      if (data.doc.email_ids.length && !data.doc.email_ids.some((e) => e.is_primary)) {
         throw new Error(
           __("At least one email address must be marked as primary")
         );
@@ -273,6 +271,10 @@ export function useNewContact() {
   const { state, resetState } = useContactState(true);
   const fieldConfig = getContactFieldConfig(true);
   const router = useRouter();
+  // TATVA: the person the server found holding this phone or email, and whether to add what was typed
+  const existing = ref<{ existing: string; adds: boolean } | null>(null);
+  const addDetails = ref(true);
+  let reusing = false;
 
   const addContactResource = createResource({
     url: "helpdesk.api.contact.create_contact",
@@ -286,12 +288,25 @@ export function useNewContact() {
         throw new Error(__("Invalid email address"));
       }
     },
-    onSuccess: (name: string) => {
+    onSuccess: (data: string | { existing: string; adds: boolean }) => {
+      // TATVA: a match is answered, not reused, so the dialog asks first
+      if (typeof data === "object" && data?.existing) {
+        existing.value = data;
+        addDetails.value = data.adds;
+        return;
+      }
+      const name = data as string;
       if (state.invite) capture("contact_created_with_invite");
       router.push({ name: "Contact", params: { id: name } });
       toast.success(
-        state.invite ? __("Contact created and invited") : __("Contact created")
+        reusing
+          ? __("Opened the existing contact")
+          : state.invite
+          ? __("Contact created and invited")
+          : __("Contact created")
       );
+      reusing = false;
+      existing.value = null;
       resetState();
     },
     onError: (err: unknown) => {
@@ -315,6 +330,17 @@ export function useNewContact() {
     return addContactResource.submit({
       doc: parseContactData(),
       invite: state.invite && !!state.email, // TATVA: a tick left behind after the email is cleared invites no one
+      ask_if_exists: 1, // TATVA: a contact already holding this phone or email is answered, so the dialog can ask
+    });
+  }
+
+  // TATVA: open the contact that already exists, adding what was typed only when asked
+  function openExisting() {
+    reusing = true;
+    return addContactResource.submit({
+      doc: parseContactData(),
+      invite: false,
+      update_existing: addDetails.value ? 1 : 0,
     });
   }
 
@@ -322,8 +348,14 @@ export function useNewContact() {
     state,
     fieldConfig,
     addContact,
+    existing, // TATVA: the found contact, the add switch and the reuse, for the dialog
+    addDetails,
+    openExisting,
     isLoading: computed(() => addContactResource.loading),
-    reset: resetState,
+    reset: () => {
+      existing.value = null; // TATVA: a closed dialog forgets the match
+      resetState();
+    },
   };
 }
 

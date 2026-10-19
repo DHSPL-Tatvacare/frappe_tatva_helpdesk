@@ -48,7 +48,7 @@
           <div class="space-y-1.5">
             <label class="block text-base text-ink-gray-5">
               {{ __("Email") }}
-              <span class="text-ink-red-6">*</span>
+              <!-- TATVA: email is optional on edit, as on create -->
             </label>
             <ContactInputRow
               v-for="(email, index) in state.emails"
