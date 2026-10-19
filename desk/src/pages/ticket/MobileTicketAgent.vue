@@ -273,7 +273,7 @@ import {
   setupCustomizations,
 } from "@/composables/formCustomisation";
 import { useScreenSize } from "@/composables/screen";
-import { applyDependencies, dependencyContext } from "@/tatva/fieldDependencies"; // TATVA: field dependencies on an open ticket
+import { applyDependencies } from "@/tatva/fieldDependencies"; // TATVA: field dependencies on an open ticket
 import TicketDetailsTab from "@/components/ticket-agent/TicketDetailsTab.vue"; // TATVA: mobile shows the desktop panel
 import { useActiveTabManager } from "@/composables/useActiveTabManager";
 import {
@@ -347,14 +347,13 @@ const customizationCtx = computed(() => ({
   $dialog,
   updateField,
   createToast,
-  ...dependencyContext(ticket.value?.doc?.name), // TATVA: the scripts narrow fields on an open ticket too
 }));
 
 watchEffect(async () => {
   if (customizations.data) {
     await setupCustomizations(customizations.data, customizationCtx.value);
     customActions.value = [...(customizations.data?._customActions || [])];
-    applyDependencies(customizations.data, ticket.value?.doc); // TATVA: a loaded ticket starts narrowed
+    applyDependencies(ticket.value?.doc?.name, customizations.data, customizationCtx.value, ticket.value?.doc); // TATVA: a loaded ticket starts narrowed, its dependency scripts run apart
   }
 });
 

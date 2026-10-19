@@ -89,7 +89,7 @@ import {
   setupCustomizations,
 } from "@/composables/formCustomisation";
 import { useNotifyTicketUpdate } from "@/composables/realtime";
-import { applyDependencies, dependencyContext } from "@/tatva/fieldDependencies"; // TATVA: field dependencies on an open ticket
+import { applyDependencies } from "@/tatva/fieldDependencies"; // TATVA: field dependencies on an open ticket
 import { useShortcut } from "@/composables/shortcuts";
 import { useView } from "@/composables/useView";
 import { useAuthStore } from "@/stores/auth";
@@ -321,7 +321,6 @@ const customizationCtx = computed(() => ({
   $dialog: globalStore().$dialog,
   updateField,
   createToast,
-  ...dependencyContext(ticket.value?.doc?.name), // TATVA: the scripts narrow fields on an open ticket too
 }));
 
 // to manage the correct  customization context for actions, happens because of navigation between tickets using buttons
@@ -333,7 +332,7 @@ watchEffect(async () => {
     );
 
     actions.value = [...(customizations.value?.data?._customActions || [])];
-    applyDependencies(customizations.value.data, ticket.value?.doc); // TATVA: a loaded ticket starts narrowed
+    applyDependencies(ticket.value?.doc?.name, customizations.value.data, customizationCtx.value, ticket.value?.doc); // TATVA: a loaded ticket starts narrowed, its dependency scripts run apart
   }
 });
 

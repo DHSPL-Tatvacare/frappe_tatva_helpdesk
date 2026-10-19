@@ -359,7 +359,7 @@ function handleFieldUpdate(
           assignees.value.reload();
         }
         // TATVA: the saved field's dependency scripts run, and a field they no longer allow is cleared
-        followDependencies(ticket.value.doc?.name, customizations.value.data, fieldname, value, ticket.value.doc, handleFieldUpdate);
+        followDependencies(ticket.value.doc?.name, fieldname, value, ticket.value.doc, handleFieldUpdate);
       },
     }
   );
