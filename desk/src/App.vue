@@ -9,7 +9,7 @@
 import { Dialogs } from "@/components/dialogs";
 import { useConfigStore } from "@/stores/config";
 import { useFavicon } from "@vueuse/core";
-import { FrappeUIProvider, setConfig, toast, useColorScheme } from "frappe-ui";
+import { call, FrappeUIProvider, setConfig, toast, useColorScheme } from "frappe-ui";
 import { storeToRefs } from "pinia";
 import { h, onMounted } from "vue";
 import Wifi from "~icons/lucide/wifi";
@@ -39,6 +39,8 @@ onMounted(() => {
       icon: () => h(WifiOff, { class: "text-ink-base" }),
     });
   });
+  // TATVA: presence — tatva_connect serves the ONE client file and its thresholds (none for a portal customer); without tatva_connect the call fails and nothing runs.
+  call("tatva_connect.presence.client").then((c) => c && import(/* @vite-ignore */ c.url).then((m) => m.start(c))).catch(() => {});
   !isCustomerPortal.value && setConfig("localTimezone", window.timezone?.user);
   setConfig("systemTimezone", window.timezone?.system || null);
 });
