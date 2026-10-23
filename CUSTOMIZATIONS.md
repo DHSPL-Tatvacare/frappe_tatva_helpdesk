@@ -39,6 +39,7 @@ install the app from the `prod` branch through `apps.json` in `frappe_tatva_conn
 | `desk/src/pages/ticket/MobileTicketAgent.vue` | The Details tab shows the desktop panel (Overview, More Details, feedback, similar tickets) under its own contact, SLA and Source; form scripts get the same dependency context | Upstream's mobile list dropped Priority, Type, Customer and Tags, so they could not be seen or changed on a phone |
 | `desk/src/components/ticket-agent/TicketDetailsTab.vue` (2) | A `hideHeader` prop leaves out the contact and SLA header | Mobile already shows both above the panel |
 | `desk/src/components/TicketField.vue` | A Link field passes its `filters` to the picker | Lets a dependency narrow the picker on both panels |
+| `desk/src/components/modals/ShortcutsModal.vue` | Next/Previous ticket print `Shift .` / `Shift ,` instead of `Shift >` / `Shift <` | `>` and `<` read as arrow keys; the CRM's shortcuts list prints the same keys the same way |
 
 ## Upstream files we removed
 

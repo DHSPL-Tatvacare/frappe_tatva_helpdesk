@@ -105,8 +105,9 @@ const shortcutGroups = computed<ShortcutGroup[]>(() => [
   {
     title: __("Navigation"),
     shortcuts: [
-      { keys: [shiftKey, ">"], description: __("Next ticket") },
-      { keys: [shiftKey, "<"], description: __("Previous ticket") },
+      // TATVA: print the keys pressed, not > <, which read as arrows; the CRM prints them the same way.
+      { keys: [shiftKey, "."], description: __("Next ticket") },
+      { keys: [shiftKey, ","], description: __("Previous ticket") },
     ],
     hideBorder: true,
   },
