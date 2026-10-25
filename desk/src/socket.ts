@@ -23,4 +23,4 @@ export function initSocket() {
   return socket;
 }
 
-export const socket = initSocket();
+// TATVA: no socket is opened here on import; main.js opens the app's one socket.
