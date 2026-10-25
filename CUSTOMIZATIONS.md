@@ -41,7 +41,7 @@ install the app from the `prod` branch through `apps.json` in `frappe_tatva_conn
 | `desk/src/components/ticket-agent/TicketDetailsTab.vue` (2) | A `hideHeader` prop leaves out the contact and SLA header | Mobile already shows both above the panel |
 | `desk/src/components/TicketField.vue` | A Link field passes its `filters` to the picker | Lets a dependency narrow the picker on both panels |
 | `desk/src/components/modals/ShortcutsModal.vue` | Next/Previous ticket print `Shift .` / `Shift ,` instead of `Shift >` / `Shift <` | `>` and `<` read as arrow keys; the CRM's shortcuts list prints the same keys the same way |
-| `desk/src/App.vue` | `onMounted` loads presence: `call("tatva_connect.presence.client")`, then `import()` of the URL it returns | Agents report active / idle / away through the ONE presence client tatva_connect serves, the same file the CRM loads; a portal customer gets nothing back, and without tatva_connect the call fails and nothing runs |
+| `desk/src/App.vue` | `onMounted` loads presence: `call("tatva_connect.presence.client")`, then `import()` of the URL it returns, started with `globalStore().$socket` | Agents report active / idle / away through the ONE presence client tatva_connect serves, the same file the CRM loads; a portal customer gets nothing back, and without tatva_connect the call fails and nothing runs |
 
 ## Upstream files we removed
 

@@ -8,6 +8,7 @@
 <script setup lang="ts">
 import { Dialogs } from "@/components/dialogs";
 import { useConfigStore } from "@/stores/config";
+import { globalStore } from "@/stores/globalStore";
 import { useFavicon } from "@vueuse/core";
 import { call, FrappeUIProvider, setConfig, toast, useColorScheme } from "frappe-ui";
 import { storeToRefs } from "pinia";
@@ -39,8 +40,9 @@ onMounted(() => {
       icon: () => h(WifiOff, { class: "text-ink-base" }),
     });
   });
-  // TATVA: presence — tatva_connect serves the ONE client file and its thresholds (none for a portal customer); without tatva_connect the call fails and nothing runs.
-  call("tatva_connect.presence.client").then((c) => c && import(/* @vite-ignore */ c.url).then((m) => m.start(c))).catch(() => {});
+  // TATVA: presence — tatva_connect serves the ONE client file and its thresholds (none for a portal customer), and it reports over the app's socket; without tatva_connect the call fails and nothing runs.
+  const { $socket } = globalStore();
+  call("tatva_connect.presence.client").then((c) => c && import(/* @vite-ignore */ c.url).then((m) => m.start(c, $socket))).catch(() => {});
   !isCustomerPortal.value && setConfig("localTimezone", window.timezone?.user);
   setConfig("systemTimezone", window.timezone?.system || null);
 });
