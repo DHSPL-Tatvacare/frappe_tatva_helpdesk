@@ -276,6 +276,8 @@ export function useNewContact() {
   const addDetails = ref(true);
   let reusing = false;
 
+  // TATVA: an invite goes to an email, so the tick alone never invites; payload, toast and analytics read this one answer
+  const invites = () => state.invite && !!state.email;
   const addContactResource = createResource({
     url: "helpdesk.api.contact.create_contact",
     method: "POST",
@@ -296,12 +298,12 @@ export function useNewContact() {
         return;
       }
       const name = data as string;
-      if (state.invite) capture("contact_created_with_invite");
+      if (invites()) capture("contact_created_with_invite"); // TATVA: only when an invite was really sent
       router.push({ name: "Contact", params: { id: name } });
       toast.success(
         reusing
           ? __("Opened the existing contact")
-          : state.invite
+          : invites() // TATVA: a contact with no email was never invited
           ? __("Contact created and invited")
           : __("Contact created")
       );
@@ -329,7 +331,7 @@ export function useNewContact() {
   function addContact() {
     return addContactResource.submit({
       doc: parseContactData(),
-      invite: state.invite && !!state.email, // TATVA: a tick left behind after the email is cleared invites no one
+      invite: invites(), // TATVA: a tick left behind after the email is cleared invites no one
       ask_if_exists: 1, // TATVA: a contact already holding this phone or email is answered, so the dialog can ask
     });
   }
