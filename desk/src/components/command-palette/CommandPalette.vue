@@ -407,7 +407,12 @@ watch(isOpen, (open) => {
 });
 
 // Drilling into a sub-list swaps the whole list out; refocus for the next query.
-watch(depth, () => nextTick(() => inputRef.value?.focus()));
+watch(depth, () =>
+  nextTick(() => {
+    if (listRef.value) listRef.value.scrollTop = 0; // TATVA: a level opens at the top, not at the scroll the last level was left at
+    inputRef.value?.focus();
+  })
+);
 
 // frappe-ui's useKeyboardShortcut: the local one suppresses bindings in inputs
 // and dialogs, so Cmd+K couldn't open from a filter box. ProseMirror keeps its
