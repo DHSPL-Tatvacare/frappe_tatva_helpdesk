@@ -25,8 +25,9 @@ file, this file wins.
 
 - **Ask before any git change:** branch, merge, rebase, reset or stash. One author only. Commit messages
   and PR bodies never name Claude.
-- **Upstream changes come in as patches, never as upstream commits.** Never add `frappe/helpdesk` as a
-  remote here. The steps are in [`GUIDELINES.md`](GUIDELINES.md).
+- **This fork is ours, kept in lockstep with upstream release by release, by patch only.** Diff our baseline tag
+  against upstream's new tag, apply it, keep every `TATVA:` change. Never a cherry-pick, a PR or an upstream
+  remote. The steps are in [`GUIDELINES.md`](GUIDELINES.md).
 - **Prove before claiming done:** build, run it on the local bench, check the screen at about 390px and on
   desktop.
 - **Plans live in `frappe_tatva_connect/docs/plans/helpdesk/`**, not in this repo.
@@ -36,6 +37,6 @@ file, this file wins.
 | Need | Where |
 |---|---|
 | What we changed in upstream, and why | [`CUSTOMIZATIONS.md`](CUSTOMIZATIONS.md) |
-| How to change, take an upstream fix, release | [`GUIDELINES.md`](GUIDELINES.md) |
+| How to change, take an upstream release, release | [`GUIDELINES.md`](GUIDELINES.md) |
 | Upstream's code standards | [`AGENTS.md`](AGENTS.md) |
 | Backend rules and hooks | `frappe_tatva_connect`: `tatva_connect/helpdesk/` and `hooks.py` |

@@ -12,7 +12,7 @@ file is not in these tables, it is exactly as upstream has it.
 | Taken on | 2026-10-09 at `v1.30.1` from the release tarball, with no upstream history; upgraded 2026-10-15 by the `v1.30.1..v1.31.0` diff, upstream CI left out |
 | Last upstream patch taken | none yet |
 
-When an upstream fix or upgrade comes in, update the last row, or the first two after a full upgrade.
+When an upstream release comes in, update the baseline rows.
 
 ## Branches
 
@@ -42,6 +42,7 @@ install the app from the `prod` branch through `apps.json` in `frappe_tatva_conn
 | `desk/src/components/TicketField.vue` | A Link field passes its `filters` to the picker | Lets a dependency narrow the picker on both panels |
 | `desk/src/components/modals/ShortcutsModal.vue` | Next/Previous ticket print `Shift .` / `Shift ,` instead of `Shift >` / `Shift <` | `>` and `<` read as arrow keys; the CRM's shortcuts list prints the same keys the same way |
 | `desk/src/App.vue` | `onMounted` loads presence: `call("tatva_connect.presence.client")`, then `import()` of the URL it returns, started with `globalStore().$socket` | Agents report active / idle / away through the ONE presence client tatva_connect serves, the same file the CRM loads; a portal customer gets nothing back, and without tatva_connect the call fails and nothing runs |
+| `desk/src/components/command-palette/CommandPalette.vue` | `watch(depth)` also sets the list's `scrollTop` to 0 | A drill-down opened from a scrolled list kept the old scroll, so its first rows sat above the fold |
 
 ## Upstream files we removed
 
@@ -68,7 +69,7 @@ install the app from the `prod` branch through `apps.json` in `frappe_tatva_conn
 |---|---|
 | `CLAUDE.md` | The rules for working in this repo |
 | `CUSTOMIZATIONS.md` | This list |
-| `GUIDELINES.md` | How to change, take an upstream fix and release |
+| `GUIDELINES.md` | How to change, take an upstream release, and release |
 | `.github/assets/tatva-logo.png` | The logo the README shows |
 | `desk/src/tatva/docsMenu.ts` | The Docs menu item: the wiki space Tatva Platform Settings names for `helpdesk`, hidden when none |
 | `desk/src/tatva/fieldDependencies.ts` | Field Dependencies on an open ticket: the scripts' `applyFilters`, the load and save runs, and the narrowed field; names no field |

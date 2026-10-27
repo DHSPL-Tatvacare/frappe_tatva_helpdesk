@@ -1,6 +1,6 @@
 # Guidelines
 
-How to change this fork, take in an upstream fix, and release. The rules behind these steps are in
+How to change this fork, take in an upstream release, and release. The rules behind these steps are in
 [`CLAUDE.md`](CLAUDE.md).
 
 ## Make a change
@@ -19,10 +19,10 @@ How to change this fork, take in an upstream fix, and release. The rules behind 
    Run it on the local bench. Check the screen at about 390px and on desktop.
 6. Commit on `develop`.
 
-## Take in an upstream fix
+## Take in an upstream release
 
-Keep a read-only copy of upstream outside this repo, and never add it as a remote here. That keeps
-upstream's history and authors out of this repo.
+We take upstream whole releases only, never single commits: no cherry-pick, no PR, no upstream remote. Keep a
+read-only copy of upstream outside this repo, so upstream's history and authors stay out of this repo.
 
 1. Get or update the upstream copy:
 
@@ -31,30 +31,16 @@ upstream's history and authors out of this repo.
    git -C ../_upstream/helpdesk fetch --tags                             # each time
    ```
 
-2. Find the fix you want, and note its commit.
-3. Make a patch from it and apply it here:
+2. Make a patch between our baseline tag and upstream's new tag, and apply it here:
 
    ```bash
-   git -C ../_upstream/helpdesk format-patch -1 <commit> --stdout > /tmp/upstream.patch
-   git apply -3 /tmp/upstream.patch
+   git -C ../_upstream/helpdesk diff <baseline tag> <new tag> -- . ':!.github' > /tmp/upgrade.patch
+   git apply -3 /tmp/upgrade.patch
    ```
 
-4. If a file we changed conflicts, business priority decides; keep our `TATVA:` lines unless upstream now does the job.
-5. Build and check it as in "Make a change".
-6. Commit as yourself: `fix(upstream): <what it fixes> (frappe/helpdesk <commit>)`.
-7. Update "Last upstream patch taken" in [`CUSTOMIZATIONS.md`](CUSTOMIZATIONS.md).
-
-## Upgrade to a new upstream version
-
-The same steps, with a patch between two tags:
-
-```bash
-git -C ../_upstream/helpdesk diff <baseline tag> <new tag> -- . ':!.github' > /tmp/upgrade.patch
-git apply -3 /tmp/upgrade.patch
-```
-
-Then check every file listed in [`CUSTOMIZATIONS.md`](CUSTOMIZATIONS.md) still has its `TATVA:` lines, build,
-test on the bench, and update the baseline rows.
+3. If a file we changed conflicts, business priority decides; keep our `TATVA:` lines unless upstream now does the job.
+4. Check every file listed in [`CUSTOMIZATIONS.md`](CUSTOMIZATIONS.md) still has its `TATVA:` lines, build, and test on the bench.
+5. Commit as yourself: `chore(upstream): take frappe/helpdesk <new tag>`, and update the baseline rows in [`CUSTOMIZATIONS.md`](CUSTOMIZATIONS.md).
 
 ## Release
 
