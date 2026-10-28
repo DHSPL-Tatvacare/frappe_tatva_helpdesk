@@ -332,7 +332,12 @@ watchEffect(async () => {
     );
 
     actions.value = [...(customizations.value?.data?._customActions || [])];
-    applyDependencies(ticket.value?.doc?.name, customizations.value.data, customizationCtx.value, ticket.value?.doc); // TATVA: a loaded ticket starts narrowed, its dependency scripts run apart
+    applyDependencies(
+      ticket.value?.doc?.name,
+      customizations.value.data,
+      customizationCtx.value,
+      ticket.value?.doc
+    ); // TATVA: a loaded ticket starts narrowed, its dependency scripts run apart
   }
 });
 

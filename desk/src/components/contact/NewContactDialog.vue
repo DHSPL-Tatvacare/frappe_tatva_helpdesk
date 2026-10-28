@@ -147,8 +147,16 @@ import PhoneControl from "../frappe-ui/PhoneControl/PhoneControl.vue";
 
 const open = defineModel<boolean>({ default: false });
 
-const { state, fieldConfig, addContact, existing, addDetails, openExisting, isLoading, reset } =
-  useNewContact(); // TATVA: existing, addDetails, openExisting for the already-exists step
+const {
+  state,
+  fieldConfig,
+  addContact,
+  existing,
+  addDetails,
+  openExisting,
+  isLoading,
+  reset,
+} = useNewContact(); // TATVA: existing, addDetails, openExisting for the already-exists step
 
 function handleAdd() {
   addContact();

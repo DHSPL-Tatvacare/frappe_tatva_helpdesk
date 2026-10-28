@@ -334,7 +334,6 @@ const customizations: Resource<Customizations> = createResource({
   auto: true,
 });
 
-
 function updateField(name: string, value: string) {
   ticket.value.setValue.submit({ [name]: value });
 }
@@ -353,7 +352,12 @@ watchEffect(async () => {
   if (customizations.data) {
     await setupCustomizations(customizations.data, customizationCtx.value);
     customActions.value = [...(customizations.data?._customActions || [])];
-    applyDependencies(ticket.value?.doc?.name, customizations.data, customizationCtx.value, ticket.value?.doc); // TATVA: a loaded ticket starts narrowed, its dependency scripts run apart
+    applyDependencies(
+      ticket.value?.doc?.name,
+      customizations.data,
+      customizationCtx.value,
+      ticket.value?.doc
+    ); // TATVA: a loaded ticket starts narrowed, its dependency scripts run apart
   }
 });
 
