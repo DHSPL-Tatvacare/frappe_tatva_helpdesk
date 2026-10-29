@@ -2,6 +2,18 @@
 <template>
   <div v-if="offered.length" class="flex items-center">
     <Button
+      v-if="compact"
+      :aria-label="offered[0].label"
+      :tooltip="offered[0].label"
+      :class="offered.length > 1 && 'rounded-e-none'"
+      @click="start(offered[0])"
+    >
+      <template #icon>
+        <img :src="offered[0].icon" alt="" class="size-4 rounded-sm" />
+      </template>
+    </Button>
+    <Button
+      v-else
       :label="offered[0].label"
       :class="offered.length > 1 && 'rounded-e-none'"
       @click="start(offered[0])"
@@ -27,14 +39,15 @@
 import { Button, createResource, Dropdown } from "frappe-ui";
 import { computed, h, ref, watch } from "vue";
 import RecordActionDialog from "./RecordActionDialog.vue";
-import { RECORD_ACTIONS_API, type RecordAction } from "./recordActions";
+import { FORM_VERSION, RECORD_ACTIONS_API, type RecordAction } from "./recordActions";
 
-const props = defineProps<{ doctype: string; name: string }>();
+// `compact` shows the first action as its icon alone, for a phone header.
+const props = defineProps<{ doctype: string; name: string; compact?: boolean }>();
 
 const actions = createResource({
   url: `${RECORD_ACTIONS_API}.actions`,
   method: "GET",
-  makeParams: () => ({ doctype: props.doctype, name: props.name }),
+  makeParams: () => ({ doctype: props.doctype, name: props.name, form_version: FORM_VERSION }),
   onError() {}, // an older backend or a refusal leaves the header as it was
 });
 // One read per record; moving to another ticket reads that one's.

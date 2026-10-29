@@ -55,26 +55,27 @@ const modelValue = defineModel<string | null>();
 
 const text = ref("");
 const isOpen = ref(false);
-// The query the list on screen answers, so an unchanged query never asks again.
-let asked: string | null = null;
 // The picked option, kept so the trigger still shows it when a later search does not return it.
 const picked = ref<RecordActionOption | null>(null);
 
 const results = createResource({
   url: `${RECORD_ACTIONS_API}.search`,
   method: "GET",
-  makeParams: () => {
-    asked = text.value;
-    return {
-      action: props.action,
-      doctype: props.doctype,
-      name: props.name,
-      field: props.field.fieldname,
-      query: text.value,
-      values: JSON.stringify(props.values),
-    };
-  },
+  makeParams: ({ query }: { query: string }) => ({
+    action: props.action,
+    doctype: props.doctype,
+    name: props.name,
+    field: props.field.fieldname,
+    query,
+    values: JSON.stringify(props.values),
+  }),
 });
+
+// One search per query: the list on screen already answers the query it was read for.
+function search(query: string) {
+  if (results.fetched && results.params?.query === query) return;
+  results.fetch({ query });
+}
 
 const options = computed(() => {
   const rows: RecordActionOption[] = results.data || [];
@@ -87,11 +88,11 @@ function onOpen(open: boolean) {
   isOpen.value = open;
   if (!open) return;
   text.value = "";
-  if (!results.fetched) results.fetch();
+  search("");
 }
 
 // Typing searches again once the person pauses; the server keeps each answer for a while.
-watchDebounced(text, (query) => isOpen.value && query !== asked && results.reload(), { debounce: 300 });
+watchDebounced(text, (query) => isOpen.value && search(query), { debounce: 300 });
 
 function pick(value: string | null) {
   picked.value = (results.data || []).find((r: RecordActionOption) => r.value === value) || null;

@@ -23,8 +23,15 @@
           <div class="text-base-medium leading-none text-ink-gray-9 truncate">
             {{ config.brandName || "Helpdesk" }}
           </div>
-          <div class="mt-1 text-sm text-ink-gray-7">
-            {{ authStore.userName }}
+          <!-- TATVA: the agent's status dot before the name, as the CRM shows a rep's check-in; Helpdesk's own status colours -->
+          <div class="mt-1 flex min-w-0 items-center gap-1.5 text-sm text-ink-gray-7">
+            <span
+              v-if="authStore.hasAgentRecord"
+              class="size-2.5 shrink-0 rounded-full"
+              :class="agentStatusStore.statusColor(agentStatusStore.myStatus)"
+              aria-hidden="true"
+            />
+            <span class="truncate">{{ authStore.userName }}</span>
           </div>
         </div>
         <div
@@ -48,6 +55,7 @@
 <script setup lang="ts">
 import LucideChevronDown from "~icons/lucide/chevron-down";
 import BrandLogo from "@/components/BrandLogo.vue";
+import { useAgentStatusStore } from "@/stores/agentStatus"; // TATVA: the status dot
 import { useAuthStore } from "@/stores/auth";
 import { useConfigStore } from "@/stores/config";
 import { useSidebarStore } from "@/stores/sidebar";
@@ -69,6 +77,7 @@ const props = defineProps({
 
 const authStore = useAuthStore();
 const sidebarStore = useSidebarStore();
+const agentStatusStore = useAgentStatusStore(); // TATVA: the status dot
 
 const collapsed = computed(() => props.isCollapsed ?? !sidebarStore.isExpanded);
 </script>

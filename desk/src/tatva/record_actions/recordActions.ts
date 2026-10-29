@@ -3,6 +3,8 @@ import { Avatar } from "frappe-ui";
 import { h, ref, type Component } from "vue";
 
 export const RECORD_ACTIONS_API = "tatva_connect.api.record_actions";
+// The form contract this dialog draws (record_actions.FORM_VERSION); the server offers actions only to a dialog that draws it.
+export const FORM_VERSION = 2;
 
 // Bumped by every run that made something, so a record's links re-read without a reload.
 export const recordActionsRan = ref(0);
@@ -13,12 +15,13 @@ export interface RecordAction {
   icon: string;
 }
 
-// An option as the server sends it; `image` is the option's own picture, `round` draws it as a person.
+// An option as the server sends it; `image` is its picture (`round` for a person), `hint` a short code shown at the row's end.
 export interface RecordActionOption {
   label: string;
   value: string;
   image?: string | null;
   round?: 0 | 1;
+  hint?: string;
 }
 
 export interface RecordActionField {
@@ -62,20 +65,12 @@ export interface RecordActionForm {
 
 // A server option as a frappe-ui option, its picture as the row's icon.
 export function toOption(option: RecordActionOption) {
-  return { label: option.label, value: option.value, icon: option.image ? pictureOf(option) : undefined };
+  return { label: option.label, value: option.value, hint: option.hint, icon: option.image ? pictureOf(option) : undefined };
 }
 
+// Avatar, so a picture the browser may not load (a custom Jira avatar needs a Jira login) shows the label's initial.
 function pictureOf(option: RecordActionOption): Component {
-  return () =>
-    option.round
-      ? h(Avatar, { image: option.image, label: option.label, size: "xs", shape: "circle" })
-      : h("img", {
-          src: option.image,
-          alt: "",
-          class: "size-4 shrink-0 rounded-sm",
-          // A picture the page may not load hides itself, as Avatar falls back to initials.
-          onError: (e: Event) => ((e.target as HTMLImageElement).hidden = true),
-        });
+  return () => h(Avatar, { image: option.image, label: option.label, size: "xs", shape: option.round ? "circle" : "square" });
 }
 
 // Jira's status category as a badge colour.

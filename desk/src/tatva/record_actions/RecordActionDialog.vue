@@ -56,7 +56,7 @@
             :action="action.key"
             :doctype="doctype"
             :name="name"
-            :values="choices"
+            :values="builtFor"
           />
           <RecordActionTags
             v-else-if="field.fieldtype === 'Tags'"
@@ -72,7 +72,11 @@
             :placeholder="field.placeholder"
             :options="field.options?.map(toOption)"
             variant="outline"
-          />
+          >
+            <template #item-suffix="{ item }">
+              <span v-if="item.hint" class="shrink-0 text-p-sm text-ink-gray-5">{{ item.hint }}</span>
+            </template>
+          </FormControl>
         </div>
       </div>
     </div>
@@ -91,12 +95,11 @@
     </div>
   </DefineSubmit>
 
+  <!-- The sheet scrolls its own body; the header and submit stay pinned inside that one scroll. -->
   <BottomSheet v-if="isMobileView" v-model:open="open">
-    <div class="flex max-h-[85dvh] flex-col gap-4 px-4 pb-4">
-      <ReuseHeader />
-      <div class="min-h-0 flex-1 overflow-y-auto"><ReuseBody /></div>
-      <ReuseSubmit />
-    </div>
+    <div class="sticky top-0 z-10 bg-surface-base px-4 pb-3"><ReuseHeader /></div>
+    <div class="px-4"><ReuseBody /></div>
+    <div class="sticky bottom-0 z-10 bg-surface-base px-4 py-4"><ReuseSubmit /></div>
   </BottomSheet>
   <Dialog v-else v-model:open="open" size="3xl">
     <template #title><ReuseHeader /></template>
@@ -157,12 +160,13 @@ const form = createResource({
 
 const fields = computed<RecordActionField[]>(() => (form.data as RecordActionForm | undefined)?.fields || []);
 const reloading = computed(() => fields.value.filter((f) => f.reloads));
-// The choices the server built this form for, such as the project and issue type.
-const choices = computed(() =>
-  Object.fromEntries(reloading.value.map((f) => [f.fieldname, values[f.fieldname]]).filter(([, v]) => v))
-);
-// A search's results follow those choices, so a new choice starts its search afresh.
-const searchKey = computed(() => JSON.stringify(choices.value));
+// The choices that shape the form, such as project and issue type: as the person has them, and as the server built the form for.
+const choicesOf = (read: (f: RecordActionField) => unknown) =>
+  Object.fromEntries(reloading.value.map((f) => [f.fieldname, read(f) ?? null]));
+const choices = computed(() => choicesOf((f) => values[f.fieldname]));
+const builtFor = computed(() => choicesOf((f) => f.default));
+// A search follows the choices the form was built for, so a rebuilt form starts its searches afresh.
+const searchKey = computed(() => JSON.stringify(builtFor.value));
 
 // Each field takes the server's default unless the person already set a value it still offers; gone fields are dropped.
 function applyDefaults(data: RecordActionForm) {
@@ -174,28 +178,30 @@ function applyDefaults(data: RecordActionForm) {
       values[field.fieldname] = Array.isArray(field.default) ? [...field.default] : field.default ?? (field.fieldtype === "Tags" ? [] : null);
   }
 }
-watch(() => form.data, (data) => data && applyDefaults(data), { immediate: true });
-
-// A choice the form was not built for asks for the form again; searched values belong to the old choice.
+// Choices the form was not built for ask for it again; a searched value belonged to the old choices.
+// Checked on every change and again when a load lands, so a choice made while loading is not lost.
+function rebuildIfChoicesChanged() {
+  if (!form.data || form.loading || JSON.stringify(choices.value) === searchKey.value) return;
+  for (const f of fields.value) if (f.fieldtype === "Search") values[f.fieldname] = null;
+  form.reload();
+}
 watch(
-  () => reloading.value.map((f) => values[f.fieldname] !== f.default),
-  (changed) => {
-    if (!changed.some(Boolean) || form.loading) return;
-    for (const f of fields.value) if (f.fieldtype === "Search") values[f.fieldname] = null;
-    form.reload();
-  }
-);
-
-// Opening reads the form; what was read last paints at once while it does. Closing forgets what was typed.
-watch(
-  open,
-  (isOpen) => {
-    if (isOpen) form.fetched ? form.reload() : form.fetch();
-    else for (const key of Object.keys(values)) delete values[key];
-    if (!isOpen && form.data) applyDefaults(form.data);
+  () => form.data,
+  (data) => {
+    if (!data) return;
+    applyDefaults(data);
+    rebuildIfChoicesChanged();
   },
   { immediate: true }
 );
+watch(() => JSON.stringify(choices.value), rebuildIfChoicesChanged);
+
+// Opening reads the form while the last one paints at once; closing puts every field back to its default.
+function resetValues() {
+  for (const key of Object.keys(values)) delete values[key];
+  if (form.data) applyDefaults(form.data);
+}
+watch(open, (isOpen) => (isOpen ? (form.fetched ? form.reload() : form.fetch()) : resetValues()), { immediate: true });
 // Another record's dialog starts from nothing.
 watch(() => props.name, () => form.reset());
 

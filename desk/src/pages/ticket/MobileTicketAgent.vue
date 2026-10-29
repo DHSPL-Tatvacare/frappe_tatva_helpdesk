@@ -75,6 +75,8 @@
       </div>
       <!-- right side -->
       <div class="flex items-center gap-2">
+        <!-- TATVA: record actions from tatva_connect, such as Create Jira issue, as an icon on a phone; nothing while the ticket offers none -->
+        <RecordActionsButton compact doctype="HD Ticket" :name="ticket.doc.name" />
         <CustomActions
           v-if="mobileCustomActions.length"
           :actions="mobileCustomActions"
@@ -120,7 +122,8 @@
               :value="tab.value"
               class="min-h-0 flex-1 flex-col overflow-auto data-[state=active]:flex"
             >
-              <div v-if="tab.value === 'details'">
+              <!-- TATVA: a flex column the tab fills, so the panel below scrolls its own sections as on desktop -->
+              <div v-if="tab.value === 'details'" class="flex min-h-0 flex-1 flex-col">
                 <!-- ticket contact info -->
                 <TicketAgentContact
                   v-if="contact.data"
@@ -146,8 +149,8 @@
                   <!-- TATVA: the ticket's own source, never a guessed Portal/Mail -->
                   <div>{{ ticket.doc?.custom_ticket_source }}</div>
                 </div>
-                <!-- TATVA: the desktop panel's Overview, More Details, feedback and similar tickets; its contact and SLA are above -->
-                <TicketDetailsTab hide-header />
+                <!-- TATVA: the desktop panel's Overview, More Details, feedback and similar tickets; its contact and SLA are above; it takes the height left so its own scroller and spacer work -->
+                <TicketDetailsTab hide-header class="min-h-0 flex-1" />
               </div>
 
               <!-- Rest Activities -->
@@ -275,6 +278,7 @@ import {
 import { useScreenSize } from "@/composables/screen";
 import { applyDependencies } from "@/tatva/fieldDependencies"; // TATVA: field dependencies on an open ticket
 import TicketDetailsTab from "@/components/ticket-agent/TicketDetailsTab.vue"; // TATVA: mobile shows the desktop panel
+import RecordActionsButton from "@/tatva/record_actions/RecordActionsButton.vue"; // TATVA: record actions
 import { useActiveTabManager } from "@/composables/useActiveTabManager";
 import {
   reloadTicket,
