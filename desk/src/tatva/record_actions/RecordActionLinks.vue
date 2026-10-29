@@ -21,10 +21,11 @@
           class="block rounded border border-outline-gray-2 p-3 transition-colors hover:bg-surface-gray-1"
         >
           <div class="flex items-center justify-between gap-2">
-            <span class="flex min-w-0 items-center gap-1.5 text-sm font-medium text-ink-gray-8">
+            <!-- divs, not spans: the phone ticket page styles every `a span` for its breadcrumbs -->
+            <div class="flex min-w-0 items-center gap-1.5 text-sm font-medium text-ink-gray-8">
               <img v-if="link.icon" :src="link.icon" alt="" class="size-3.5 shrink-0 rounded-sm" />
-              <span class="truncate">{{ link.key }}</span>
-            </span>
+              <div class="truncate">{{ link.key }}</div>
+            </div>
             <Badge
               v-if="link.status"
               :label="link.status"
