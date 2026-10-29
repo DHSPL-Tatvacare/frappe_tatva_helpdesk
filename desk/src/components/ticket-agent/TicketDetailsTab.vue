@@ -75,6 +75,9 @@
           </div>
         </Section>
 
+        <!-- TATVA: what record actions made for this ticket, such as its Jira issue, read live -->
+        <RecordActionLinks doctype="HD Ticket" :name="ticket.doc?.name" />
+
         <!-- Ticket Info (custom fields) -->
         <div v-if="Boolean(customFields.length)">
           <Section
@@ -153,6 +156,7 @@
 <script setup lang="ts">
 import { parseField } from "@/composables/formCustomisation";
 import { followDependencies, narrowField } from "@/tatva/fieldDependencies"; // TATVA: field dependencies on an open ticket
+import RecordActionLinks from "@/tatva/record_actions/RecordActionLinks.vue"; // TATVA: record actions
 import { useNotifyTicketUpdate } from "@/composables/realtime";
 import { useShortcut } from "@/composables/shortcuts";
 import { getMeta } from "@/stores/meta";

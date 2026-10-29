@@ -42,6 +42,8 @@
             </Dropdown>
           </div>
         </div>
+        <!-- TATVA: record actions from tatva_connect, such as Raise Jira issue; nothing while the ticket offers none -->
+        <RecordActionsButton doctype="HD Ticket" :name="ticket.doc.name" />
         <!-- Status -->
         <Dropdown :options="statusDropdown" align="end">
           <template #default="{ open }">
@@ -122,6 +124,7 @@ import { useRoute, useRouter } from "vue-router";
 import LucideMerge from "~icons/lucide/merge";
 import { IndicatorIcon } from "../icons";
 import TicketSubjectModal from "./TicketSubjectModal.vue";
+import RecordActionsButton from "@/tatva/record_actions/RecordActionsButton.vue"; // TATVA: record actions
 const { isAdmin } = useAuthStore();
 const { $dialog } = globalStore();
 
