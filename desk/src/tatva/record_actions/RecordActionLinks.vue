@@ -6,7 +6,7 @@
         <button
           class="ms-auto rounded p-1 text-ink-gray-5 hover:bg-surface-gray-2"
           :aria-label="__('Refresh')"
-          @click.stop="links.reload()"
+          @click.stop="reread"
         >
           <lucide-refresh-cw class="size-3.5" :class="links.loading && 'animate-spin'" />
         </button>
@@ -55,14 +55,21 @@ import { RECORD_ACTIONS_API, recordActionsRan, STAGE_THEME } from "./recordActio
 const props = defineProps<{ doctype: string; name: string }>();
 const opened = ref(true);
 
+// A refresh asks the other system itself rather than what the server remembers of it.
+let fresh = 0;
 const links = createResource({
   url: `${RECORD_ACTIONS_API}.links`,
   method: "GET",
-  makeParams: () => ({ doctype: props.doctype, name: props.name }),
+  makeParams: () => ({ doctype: props.doctype, name: props.name, fresh }),
   onError() {}, // an older backend or a refusal shows nothing, as a record with no links does
 });
 // Read per record, and again after any run made something.
 watch([() => props.name, recordActionsRan], ([name]) => name && links.fetch(), { immediate: true });
+
+function reread() {
+  fresh = 1;
+  links.reload().finally(() => (fresh = 0));
+}
 
 const groups = computed(() => {
   const bySection = new Map<string, any[]>();

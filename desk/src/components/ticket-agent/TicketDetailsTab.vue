@@ -75,9 +75,6 @@
           </div>
         </Section>
 
-        <!-- TATVA: what record actions made for this ticket, such as its Jira issue, read live -->
-        <RecordActionLinks doctype="HD Ticket" :name="ticket.doc?.name" />
-
         <!-- Ticket Info (custom fields) -->
         <div v-if="Boolean(customFields.length)">
           <Section
@@ -100,6 +97,9 @@
             </div>
           </Section>
         </div>
+
+        <!-- TATVA: what record actions made for this ticket, such as its Jira issue, read live; third, after More Details -->
+        <RecordActionLinks doctype="HD Ticket" :name="ticket.doc?.name" />
 
         <!-- Recent / Similar Tickets -->
         <template v-if="showRecentSimilarTickets">
