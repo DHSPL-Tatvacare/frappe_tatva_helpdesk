@@ -53,6 +53,8 @@
           </template>
         </UniInput>
       </div>
+      <!-- TATVA: the ticket's grain, a field of the page's own above Subject; agents only -->
+      <GrainSelect v-if="!isCustomerPortal" v-model="grainFields" />
       <!-- existing fields -->
       <div
         class="flex flex-col"
@@ -180,6 +182,7 @@ import sanitizeHtml from "sanitize-html";
 import { computed, defineAsyncComponent, onMounted, reactive, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import SearchArticles from "../../components/SearchArticles.vue";
+import GrainSelect from "@/tatva/GrainSelect.vue";
 const TicketTextEditor = defineAsyncComponent(
   () => import("./TicketTextEditor.vue")
 );
@@ -206,13 +209,17 @@ const canSubmit = computed(
     Boolean(subject.value) &&
     !isContentEmpty(description.value) &&
     !ticket.loading &&
-    !isUploading.value
+    !isUploading.value &&
+    // TATVA: an agent's submit waits until a grain is settled
+    (grainFields.value === null || Object.keys(grainFields.value).length > 0)
 );
 
 const subject = ref(String(route.query.subject ?? ""));
 const description = ref("");
 const attachments = ref([]);
 const templateFields = reactive({});
+// TATVA: null on the customer portal, else the ticket's grain fields once settled
+const grainFields = ref<Record<string, string> | null>(null);
 
 const template = createResource({
   url: "helpdesk.helpdesk.doctype.hd_ticket_template.api.get_one",
@@ -288,6 +295,7 @@ const ticket = createResource({
       subject: subject.value,
       template: props.templateId,
       ...templateFields,
+      ...(grainFields.value || {}), // TATVA: the agent's grain
     },
     attachments: attachments.value,
   }),
