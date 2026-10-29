@@ -2,10 +2,13 @@
   <Layout class="isolate">
     <router-view class="flex flex-1 flex-col overflow-auto" />
   </Layout>
+  <!-- TATVA: the check-in ask and the logout ask, as the CRM's, on tatva_connect's check-in endpoints -->
+  <CheckinPrompt v-if="authStore.hasDeskAccess" />
 </template>
 
 <script setup lang="ts">
 import { useAgentStatusStore } from "@/stores/agentStatus";
+import CheckinPrompt from "@/tatva/checkin/CheckinPrompt.vue";
 import { useAuthStore } from "@/stores/auth";
 import { computed, defineAsyncComponent, onBeforeMount } from "vue";
 import { useRouter } from "vue-router";

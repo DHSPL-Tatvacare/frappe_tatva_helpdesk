@@ -38,6 +38,9 @@ install the app from the `prod` branch through `apps.json` in `frappe_tatva_conn
 | `desk/src/components/ticket-agent/TicketHeader.vue` | The open ticket's Field Dependency scripts (sent apart by the server) run on load, apart from its other form scripts (`tatva/fieldDependencies.ts`) | Upstream applied Field Dependencies only on the new-ticket page |
 | `desk/src/components/ticket-agent/TicketDetailsTab.vue` | Side-panel fields are narrowed by their dependency; a saved field runs its scripts and clears a field they no longer allow | Same |
 | `desk/src/pages/ticket/MobileTicketAgent.vue` | The Details tab shows the desktop panel (Overview, More Details, feedback, similar tickets) under its own contact, SLA and Source; form scripts get the same dependency context | Upstream's mobile list dropped Priority, Type, Customer and Tags, so they could not be seen or changed on a phone |
+| `desk/src/pages/ticket/TicketNew.vue` | A Grain field (`tatva/GrainSelect.vue`) above Subject for agents; Submit waits for a grain, and the grain goes in the create request | A ticket an agent raises is filed under their grain, as a lead is |
+| `desk/src/roots/AgentRoot.vue` | Mounts `tatva/checkin/CheckinPrompt.vue` for agents | An agent is asked to check in at login and when a shift opens, as a CRM rep is; pools that require check-in give work only to people checked in |
+| `desk/src/stores/auth.ts` | `logout()` goes through `logoutWithCheckout` from `tatva/checkin/useCheckin.ts` | An agent checked in Active is asked whether to set Unavailable before logging out, as the CRM asks; anyone else logs out as upstream |
 | `desk/src/components/ticket-agent/TicketDetailsTab.vue` (2) | A `hideHeader` prop leaves out the contact and SLA header | Mobile already shows both above the panel |
 | `desk/src/components/TicketField.vue` | A Link field passes its `filters` to the picker | Lets a dependency narrow the picker on both panels |
 | `desk/src/components/modals/ShortcutsModal.vue` | Next/Previous ticket print `Shift .` / `Shift ,` instead of `Shift >` / `Shift <` | `>` and `<` read as arrow keys; the CRM's shortcuts list prints the same keys the same way |
@@ -73,6 +76,9 @@ install the app from the `prod` branch through `apps.json` in `frappe_tatva_conn
 | `.github/assets/tatva-logo.png` | The logo the README shows |
 | `desk/src/tatva/docsMenu.ts` | The Docs menu item: the wiki space Tatva Platform Settings names for `helpdesk`, hidden when none |
 | `desk/src/tatva/fieldDependencies.ts` | Field Dependencies on an open ticket: the scripts' `applyFilters`, the load and save runs, and the narrowed field; names no field |
+| `desk/src/tatva/GrainSelect.vue` | The new-ticket Grain field: the agent's grains from `tatva_connect.helpdesk.ticket.grain_choices`, one applied and locked, several a required pick |
+| `desk/src/tatva/checkin/useCheckin.ts` | The check-in ask and the logout ask on `tatva_connect.api.checkin` (`get_status`, `set_status`, `dismiss_prompt`) and its `tatva_checkin` push, with the CRM's rules; nothing shows unless the server answers `enabled` |
+| `desk/src/tatva/checkin/CheckinPrompt.vue` | The CRM's check-in dialog, its words and buttons, on Helpdesk's own Dialog |
 
 New code goes in `desk/src/tatva/` and is listed here when it is added.
 

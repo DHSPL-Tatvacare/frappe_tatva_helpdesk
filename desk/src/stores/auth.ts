@@ -1,4 +1,5 @@
 import { LOGIN_PAGE, router } from "@/router";
+import { logoutWithCheckout } from "@/tatva/checkin/useCheckin";
 import { call, createResource } from "frappe-ui";
 import { defineStore } from "pinia";
 import { computed, ComputedRef, Ref, ref } from "vue";
@@ -75,9 +76,12 @@ export const useAuthStore = defineStore("auth", () => {
   // module-scope userStorage keys in sync with the session cookie.
 
   function logout() {
-    user.value = null;
-    call(URI_LOGOUT).then(() => {
-      window.location.href = LOGIN_PAGE;
+    // TATVA: an agent checked in Active is asked whether to set Unavailable first, as the CRM asks
+    logoutWithCheckout(() => {
+      user.value = null;
+      call(URI_LOGOUT).then(() => {
+        window.location.href = LOGIN_PAGE;
+      });
     });
   }
 
