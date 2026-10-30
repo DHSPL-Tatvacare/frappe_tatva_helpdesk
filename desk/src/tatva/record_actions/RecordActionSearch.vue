@@ -80,7 +80,9 @@ function search(query: string) {
 const options = computed(() => {
   const rows: RecordActionOption[] = results.data || [];
   const withPicked =
-    picked.value && !rows.some((r) => r.value === picked.value!.value) ? [picked.value, ...rows] : rows;
+    picked.value && !rows.some((r) => r.value === picked.value!.value)
+      ? [picked.value, ...rows]
+      : rows;
   return withPicked.map(toOption);
 });
 
@@ -92,10 +94,14 @@ function onOpen(open: boolean) {
 }
 
 // Typing searches again once the person pauses; the server keeps each answer for a while.
-watchDebounced(text, (query) => isOpen.value && search(query), { debounce: 300 });
+watchDebounced(text, (query) => isOpen.value && search(query), {
+  debounce: 300,
+});
 
 function pick(value: string | null) {
-  picked.value = (results.data || []).find((r: RecordActionOption) => r.value === value) || null;
+  picked.value =
+    (results.data || []).find((r: RecordActionOption) => r.value === value) ||
+    null;
   modelValue.value = value;
 }
 </script>

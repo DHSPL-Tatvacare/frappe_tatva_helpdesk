@@ -76,7 +76,11 @@
       <!-- right side -->
       <div class="flex items-center gap-2">
         <!-- TATVA: record actions from tatva_connect, such as Create Jira issue, as an icon on a phone; nothing while the ticket offers none -->
-        <RecordActionsButton compact doctype="HD Ticket" :name="ticket.doc.name" />
+        <RecordActionsButton
+          compact
+          doctype="HD Ticket"
+          :name="ticket.doc.name"
+        />
         <CustomActions
           v-if="mobileCustomActions.length"
           :actions="mobileCustomActions"
@@ -123,7 +127,10 @@
               class="min-h-0 flex-1 flex-col overflow-auto data-[state=active]:flex"
             >
               <!-- TATVA: a flex column the tab fills, so the panel below scrolls its own sections as on desktop -->
-              <div v-if="tab.value === 'details'" class="flex min-h-0 flex-1 flex-col">
+              <div
+                v-if="tab.value === 'details'"
+                class="flex min-h-0 flex-1 flex-col"
+              >
                 <!-- ticket contact info -->
                 <TicketAgentContact
                   v-if="contact.data"

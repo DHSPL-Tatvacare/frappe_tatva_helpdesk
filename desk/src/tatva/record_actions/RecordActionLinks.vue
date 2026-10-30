@@ -8,7 +8,10 @@
           :aria-label="__('Refresh')"
           @click.stop="links.fetch({ fresh: 1 })"
         >
-          <lucide-refresh-cw class="size-3.5" :class="links.loading && 'animate-spin'" />
+          <lucide-refresh-cw
+            class="size-3.5"
+            :class="links.loading && 'animate-spin'"
+          />
         </button>
       </template>
       <div class="space-y-2 pb-3">
@@ -22,8 +25,15 @@
         >
           <div class="flex items-center justify-between gap-2">
             <!-- divs, not spans: the phone ticket page styles every `a span` for its breadcrumbs -->
-            <div class="flex min-w-0 items-center gap-1.5 text-sm font-medium text-ink-gray-8">
-              <img v-if="link.icon" :src="link.icon" alt="" class="size-3.5 shrink-0 rounded-sm" />
+            <div
+              class="flex min-w-0 items-center gap-1.5 text-sm font-medium text-ink-gray-8"
+            >
+              <img
+                v-if="link.icon"
+                :src="link.icon"
+                alt=""
+                class="size-3.5 shrink-0 rounded-sm"
+              />
               <div class="truncate">{{ link.key }}</div>
             </div>
             <Badge
@@ -51,7 +61,11 @@ import { __ } from "@/translation";
 import { timeAgo } from "@/utils";
 import { Badge, createResource } from "frappe-ui";
 import { computed, ref, watch } from "vue";
-import { RECORD_ACTIONS_API, recordActionsRan, STAGE_THEME } from "./recordActions";
+import {
+  RECORD_ACTIONS_API,
+  recordActionsRan,
+  STAGE_THEME,
+} from "./recordActions";
 
 const props = defineProps<{ doctype: string; name: string }>();
 const opened = ref(true);
@@ -60,11 +74,19 @@ const opened = ref(true);
 const links = createResource({
   url: `${RECORD_ACTIONS_API}.links`,
   method: "GET",
-  makeParams: ({ fresh }: { fresh: 0 | 1 }) => ({ doctype: props.doctype, name: props.name, fresh }),
+  makeParams: ({ fresh }: { fresh: 0 | 1 }) => ({
+    doctype: props.doctype,
+    name: props.name,
+    fresh,
+  }),
   onError() {}, // an older backend or a refusal shows nothing, as a record with no links does
 });
 // Read per record, and again after any run made something.
-watch([() => props.name, recordActionsRan], ([name]) => name && links.fetch({ fresh: 0 }), { immediate: true });
+watch(
+  [() => props.name, recordActionsRan],
+  ([name]) => name && links.fetch({ fresh: 0 }),
+  { immediate: true }
+);
 
 const groups = computed(() => {
   const bySection = new Map<string, any[]>();

@@ -23,7 +23,10 @@
       </template>
     </Button>
     <Dropdown v-if="offered.length > 1" :options="rest" align="end">
-      <Button class="rounded-s-none border-s border-outline-gray-2" icon="lucide-chevron-down" />
+      <Button
+        class="rounded-s-none border-s border-outline-gray-2"
+        icon="lucide-chevron-down"
+      />
     </Dropdown>
     <RecordActionDialog
       v-if="chosen"
@@ -39,25 +42,42 @@
 import { Button, createResource, Dropdown } from "frappe-ui";
 import { computed, h, ref, watch } from "vue";
 import RecordActionDialog from "./RecordActionDialog.vue";
-import { FORM_VERSION, RECORD_ACTIONS_API, type RecordAction } from "./recordActions";
+import {
+  FORM_VERSION,
+  RECORD_ACTIONS_API,
+  type RecordAction,
+} from "./recordActions";
 
 // `compact` shows the first action as its icon alone, for a phone header.
-const props = defineProps<{ doctype: string; name: string; compact?: boolean }>();
+const props = defineProps<{
+  doctype: string;
+  name: string;
+  compact?: boolean;
+}>();
 
 const actions = createResource({
   url: `${RECORD_ACTIONS_API}.actions`,
   method: "GET",
-  makeParams: () => ({ doctype: props.doctype, name: props.name, form_version: FORM_VERSION }),
+  makeParams: () => ({
+    doctype: props.doctype,
+    name: props.name,
+    form_version: FORM_VERSION,
+  }),
   onError() {}, // an older backend or a refusal leaves the header as it was
 });
 // One read per record; moving to another ticket reads that one's.
-watch(() => props.name, (name) => name && actions.fetch(), { immediate: true });
+watch(
+  () => props.name,
+  (name) => name && actions.fetch(),
+  { immediate: true }
+);
 
 const offered = computed<RecordAction[]>(() => actions.data || []);
 const rest = computed(() =>
   offered.value.slice(1).map((action) => ({
     label: action.label,
-    icon: () => h("img", { src: action.icon, alt: "", class: "size-4 rounded-sm" }),
+    icon: () =>
+      h("img", { src: action.icon, alt: "", class: "size-4 rounded-sm" }),
     onClick: () => start(action),
   }))
 );

@@ -52,16 +52,26 @@ const axesOf = (key: string): Grain => {
   const [vertical = "", group = "", program = ""] = key.split(SEP);
   return { vertical, group, program };
 };
-const labelOf = (g: Grain) => AXES.map((a) => g[a]).filter(Boolean).join(" · ");
+const labelOf = (g: Grain) =>
+  AXES.map((a) => g[a])
+    .filter(Boolean)
+    .join(" · ");
 
 const options = computed(() =>
-  (choices.data?.grains || []).map((g: Grain) => ({ label: labelOf(g), value: keyOf(g) }))
+  (choices.data?.grains || []).map((g: Grain) => ({
+    label: labelOf(g),
+    value: keyOf(g),
+  }))
 );
 const locked = computed(() => options.value.length === 1);
 
 const region = ref("");
 // One grain is applied without a question.
-watch(options, (o) => locked.value && !region.value && (region.value = o[0].value), { immediate: true });
+watch(
+  options,
+  (o) => locked.value && !region.value && (region.value = o[0].value),
+  { immediate: true }
+);
 
 const value = computed(() => {
   if (choices.error || (choices.data && !options.value.length)) return null;

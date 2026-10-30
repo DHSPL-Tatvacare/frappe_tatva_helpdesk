@@ -25,7 +25,11 @@
       <Skeleton v-for="n in 5" :key="n" class="h-7 w-full rounded" />
     </div>
     <div v-else class="flex flex-col gap-4">
-      <Alert v-if="form.data.existing.length" theme="blue" :title="__('Already created from here')">
+      <Alert
+        v-if="form.data.existing.length"
+        theme="blue"
+        :title="__('Already created from here')"
+      >
         <template #description>
           <span class="flex flex-wrap gap-x-3 gap-y-1">
             <a
@@ -36,12 +40,17 @@
               rel="noopener"
               class="font-medium text-ink-gray-8 underline-offset-2 hover:underline"
             >
-              {{ link.key }}<template v-if="link.status"> · {{ link.status }}</template>
+              {{ link.key
+              }}<template v-if="link.status"> · {{ link.status }}</template>
             </a>
           </span>
         </template>
       </Alert>
-      <Alert v-if="form.data.warning" theme="amber" :title="form.data.warning" />
+      <Alert
+        v-if="form.data.warning"
+        theme="amber"
+        :title="form.data.warning"
+      />
       <div class="grid grid-cols-2 gap-4">
         <div
           v-for="field in form.data.fields"
@@ -74,7 +83,11 @@
             variant="outline"
           >
             <template #item-suffix="{ item }">
-              <span v-if="item.hint" class="shrink-0 text-p-sm text-ink-gray-5">{{ item.hint }}</span>
+              <span
+                v-if="item.hint"
+                class="shrink-0 text-p-sm text-ink-gray-5"
+                >{{ item.hint }}</span
+              >
             </template>
           </FormControl>
         </div>
@@ -97,9 +110,13 @@
 
   <!-- The sheet scrolls its own body; the header and submit stay pinned inside that one scroll. -->
   <BottomSheet v-if="isMobileView" v-model:open="open">
-    <div class="sticky top-0 z-10 bg-surface-base px-4 pb-3"><ReuseHeader /></div>
+    <div class="sticky top-0 z-10 bg-surface-base px-4 pb-3">
+      <ReuseHeader />
+    </div>
     <div class="px-4"><ReuseBody /></div>
-    <div class="sticky bottom-0 z-10 bg-surface-base px-4 py-4"><ReuseSubmit /></div>
+    <div class="sticky bottom-0 z-10 bg-surface-base px-4 py-4">
+      <ReuseSubmit />
+    </div>
   </BottomSheet>
   <Dialog v-else v-model:open="open" size="3xl">
     <template #title><ReuseHeader /></template>
@@ -112,7 +129,18 @@
 import { __ } from "@/translation";
 import { useScreenSize } from "@/composables/screen";
 import { createReusableTemplate } from "@vueuse/core";
-import { Alert, BottomSheet, Button, call, createResource, Dialog, FormControl, Skeleton, toast, Tooltip } from "frappe-ui";
+import {
+  Alert,
+  BottomSheet,
+  Button,
+  call,
+  createResource,
+  Dialog,
+  FormControl,
+  Skeleton,
+  toast,
+  Tooltip,
+} from "frappe-ui";
 import { computed, reactive, ref, watch } from "vue";
 import RecordActionSearch from "./RecordActionSearch.vue";
 import RecordActionTags from "./RecordActionTags.vue";
@@ -125,7 +153,11 @@ import {
   type RecordActionForm,
 } from "./recordActions";
 
-const props = defineProps<{ action: RecordAction; doctype: string; name: string }>();
+const props = defineProps<{
+  action: RecordAction;
+  doctype: string;
+  name: string;
+}>();
 const open = defineModel<boolean>("open", { default: false });
 
 // The header, fields and submit are written once and shown in a Dialog, or a BottomSheet on a phone.
@@ -135,13 +167,19 @@ const [DefineSubmit, ReuseSubmit] = createReusableTemplate();
 const { isMobileView } = useScreenSize();
 
 // FormControl's type for each server fieldtype it draws.
-const CONTROL: Record<string, string> = { Data: "text", "Small Text": "textarea", Select: "select", Date: "date" };
+const CONTROL: Record<string, string> = {
+  Data: "text",
+  "Small Text": "textarea",
+  Select: "select",
+  Date: "date",
+};
 
 const values = reactive<Record<string, unknown>>({});
 const saving = ref(false);
 const refreshing = ref(false);
 
-const errorOf = (e: any) => e?.messages?.[0] || e?.message || __("Something went wrong");
+const errorOf = (e: any) =>
+  e?.messages?.[0] || e?.message || __("Something went wrong");
 
 const form = createResource({
   url: `${RECORD_ACTIONS_API}.form`,
@@ -158,11 +196,15 @@ const form = createResource({
   },
 });
 
-const fields = computed<RecordActionField[]>(() => (form.data as RecordActionForm | undefined)?.fields || []);
+const fields = computed<RecordActionField[]>(
+  () => (form.data as RecordActionForm | undefined)?.fields || []
+);
 const reloading = computed(() => fields.value.filter((f) => f.reloads));
 // The choices that shape the form, such as project and issue type: as the person has them, and as the server built the form for.
 const choicesOf = (read: (f: RecordActionField) => unknown) =>
-  Object.fromEntries(reloading.value.map((f) => [f.fieldname, read(f) ?? null]));
+  Object.fromEntries(
+    reloading.value.map((f) => [f.fieldname, read(f) ?? null])
+  );
 const choices = computed(() => choicesOf((f) => values[f.fieldname]));
 const builtFor = computed(() => choicesOf((f) => f.default));
 // A search follows the choices the form was built for, so a rebuilt form starts its searches afresh.
@@ -171,18 +213,29 @@ const searchKey = computed(() => JSON.stringify(builtFor.value));
 // Each field takes the server's default unless the person already set a value it still offers; gone fields are dropped.
 function applyDefaults(data: RecordActionForm) {
   const names = new Set(data.fields.map((f) => f.fieldname));
-  for (const key of Object.keys(values)) if (!names.has(key)) delete values[key];
+  for (const key of Object.keys(values))
+    if (!names.has(key)) delete values[key];
   for (const field of data.fields) {
-    const offered = field.fieldtype !== "Select" || field.options?.some((o) => o.value === values[field.fieldname]);
+    const offered =
+      field.fieldtype !== "Select" ||
+      field.options?.some((o) => o.value === values[field.fieldname]);
     if (values[field.fieldname] === undefined || !offered)
-      values[field.fieldname] = Array.isArray(field.default) ? [...field.default] : field.default ?? (field.fieldtype === "Tags" ? [] : null);
+      values[field.fieldname] = Array.isArray(field.default)
+        ? [...field.default]
+        : field.default ?? (field.fieldtype === "Tags" ? [] : null);
   }
 }
 // Choices the form was not built for ask for it again; a searched value belonged to the old choices.
 // Checked on every change and again when a load lands, so a choice made while loading is not lost.
 function rebuildIfChoicesChanged() {
-  if (!form.data || form.loading || JSON.stringify(choices.value) === searchKey.value) return;
-  for (const f of fields.value) if (f.fieldtype === "Search") values[f.fieldname] = null;
+  if (
+    !form.data ||
+    form.loading ||
+    JSON.stringify(choices.value) === searchKey.value
+  )
+    return;
+  for (const f of fields.value)
+    if (f.fieldtype === "Search") values[f.fieldname] = null;
   form.reload();
 }
 watch(
@@ -201,20 +254,38 @@ function resetValues() {
   for (const key of Object.keys(values)) delete values[key];
   if (form.data) applyDefaults(form.data);
 }
-watch(open, (isOpen) => (isOpen ? (form.fetched ? form.reload() : form.fetch()) : resetValues()), { immediate: true });
+watch(
+  open,
+  (isOpen) =>
+    isOpen ? (form.fetched ? form.reload() : form.fetch()) : resetValues(),
+  { immediate: true }
+);
 // Another record's dialog starts from nothing.
-watch(() => props.name, () => form.reset());
+watch(
+  () => props.name,
+  () => form.reset()
+);
 
 const ready = computed(
   () =>
     !form.loading &&
-    fields.value.every((f) => !f.reqd || (Array.isArray(values[f.fieldname]) ? (values[f.fieldname] as unknown[]).length : String(values[f.fieldname] ?? "").trim()))
+    fields.value.every(
+      (f) =>
+        !f.reqd ||
+        (Array.isArray(values[f.fieldname])
+          ? (values[f.fieldname] as unknown[]).length
+          : String(values[f.fieldname] ?? "").trim())
+    )
 );
 
 // Forget what the server remembers from the other system, then read the form afresh, one after the other.
 function refresh() {
   refreshing.value = true;
-  call(`${RECORD_ACTIONS_API}.refresh`, { action: props.action.key, doctype: props.doctype, name: props.name })
+  call(`${RECORD_ACTIONS_API}.refresh`, {
+    action: props.action.key,
+    doctype: props.doctype,
+    name: props.name,
+  })
     .then(() => form.reload())
     .catch((e: unknown) => toast.error(errorOf(e)))
     .finally(() => (refreshing.value = false));

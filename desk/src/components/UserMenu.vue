@@ -24,7 +24,9 @@
             {{ config.brandName || "Helpdesk" }}
           </div>
           <!-- TATVA: the agent's status dot before the name, as the CRM shows a rep's check-in; Helpdesk's own status colours -->
-          <div class="mt-1 flex min-w-0 items-center gap-1.5 text-sm text-ink-gray-7">
+          <div
+            class="mt-1 flex min-w-0 items-center gap-1.5 text-sm text-ink-gray-7"
+          >
             <span
               v-if="authStore.hasAgentRecord"
               class="size-2.5 shrink-0 rounded-full"
