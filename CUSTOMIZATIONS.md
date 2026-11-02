@@ -49,6 +49,7 @@ install the app from the `prod` branch through `apps.json` in `frappe_tatva_conn
 | `desk/src/components/modals/ShortcutsModal.vue` | Next/Previous ticket print `Shift .` / `Shift ,` instead of `Shift >` / `Shift <` | `>` and `<` read as arrow keys; the CRM's shortcuts list prints the same keys the same way |
 | `desk/src/App.vue` | `onMounted` loads presence: `call("tatva_connect.presence.client")`, then `import()` of the URL it returns, started with `globalStore().$socket` | Agents report active / idle / away through the ONE presence client tatva_connect serves, the same file the CRM loads; a portal customer gets nothing back, and without tatva_connect the call fails and nothing runs |
 | `desk/src/components/command-palette/CommandPalette.vue` | `watch(depth)` also sets the list's `scrollTop` to 0 | A drill-down opened from a scrolled list kept the old scroll, so its first rows sat above the fold |
+| `desk/src/components/command-palette/CommandPalette.vue` | `watch(groups)` follows only a row the person chose, and `watch(query)` forgets it | Late ticket hits landed above "Search for…", which was remembered just because it was first while typing, so Enter ran advanced search instead of opening the ticket found |
 
 ## Upstream files we removed
 

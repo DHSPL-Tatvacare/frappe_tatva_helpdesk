@@ -389,9 +389,11 @@ watch(groups, () => {
           command.id === activeRow!.id && command.group === activeRow!.group
       )
     : -1;
-  activeIndex.value = Math.max(index, 0);
-  rememberActive();
+  activeIndex.value = Math.max(index, 0); // TATVA: only a row the person chose is followed; re-remembering here made "Search for…" stick above late ticket hits
 });
+
+// TATVA: typing asks a new question, so a row chosen for the old one no longer holds; `sync`, so it clears before the rows rebuild.
+watch(query, () => (activeRow = null), { flush: "sync" });
 
 // Reset on open, not close — resetting on close revived the dismissed chip
 // mid-fade. Close-side focus restore lives in @close-auto-focus, which fires
