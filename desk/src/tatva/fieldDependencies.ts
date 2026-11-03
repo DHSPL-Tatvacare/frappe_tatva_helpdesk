@@ -8,8 +8,9 @@ type Allowed = Record<string, string[]>;
 const allowedByTicket = reactive<Record<string, Allowed>>({});
 // Per ticket, the parsed dependency scripts alone, apart from the ticket's other form scripts, which keep stock's behaviour.
 const scriptsByTicket: Record<string, any> = {};
-// One filters object per allowed list, so a picker reloads only when its list really changes.
-const filtersFor = new WeakMap<string[], Record<string, unknown>>();
+// One filters object per base filters and allowed list, so a picker reloads only when either really changes.
+const filtersFor = new WeakMap<object, WeakMap<string[], Record<string, unknown>>>();
+const NO_BASE = {};
 
 function allowedFor(ticket: string): Allowed {
   return (allowedByTicket[ticket] ||= {});
@@ -47,13 +48,16 @@ export function followDependencies(ticket: string, fieldname: string, value: unk
     .forEach((child) => save(child, ""));
 }
 
-// A panel field as its dependency allows: a Link searches only the allowed names, a Select offers only them.
-export function narrowField<F extends { fieldname: string; fieldtype?: string; options?: string; disabled?: boolean }>(ticket: string, field: F) {
+// A panel field as its dependency allows: a Link searches only the allowed names within the filters it already has, a Select offers only them.
+export function narrowField<F extends { fieldname: string; fieldtype?: string; options?: string; disabled?: boolean; filters?: Record<string, unknown> }>(ticket: string, field: F) {
   const values = allowedByTicket[ticket]?.[field.fieldname];
   if (!values) return field;
   if (!values.length) return { ...field, disabled: true };
   if (field.fieldtype === "Select") return { ...field, options: values.join("\n") };
-  let filters = filtersFor.get(values);
-  if (!filters) filtersFor.set(values, (filters = { name: ["in", values] }));
+  const base = field.filters || NO_BASE;
+  let byValues = filtersFor.get(base);
+  if (!byValues) filtersFor.set(base, (byValues = new WeakMap()));
+  let filters = byValues.get(values);
+  if (!filters) byValues.set(values, (filters = { ...field.filters, name: ["in", values] }));
   return { ...field, filters };
 }

@@ -19,6 +19,8 @@
       <div v-if="Boolean(template.data?.about)" class="">
         <div class="prose-f" v-html="sanitize(template.data.about)" />
       </div>
+      <!-- TATVA: the ticket's grain, picked first, since it decides what the fields below may offer; agents only -->
+      <GrainSelect v-if="!isCustomerPortal" v-model="grainFields" />
       <!-- custom fields -->
       <div
         class="grid grid-cols-1 gap-4 sm:grid-cols-3"
@@ -53,8 +55,6 @@
           </template>
         </UniInput>
       </div>
-      <!-- TATVA: the ticket's grain, a field of the page's own above Subject; agents only -->
-      <GrainSelect v-if="!isCustomerPortal" v-model="grainFields" />
       <!-- existing fields -->
       <div
         class="flex flex-col"
@@ -183,6 +183,7 @@ import { computed, defineAsyncComponent, onMounted, reactive, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import SearchArticles from "../../components/SearchArticles.vue";
 import GrainSelect from "@/tatva/GrainSelect.vue";
+import { useNewTicketPickers } from "@/tatva/ticketPickers"; // TATVA: the picked grain narrows the pickers
 const TicketTextEditor = defineAsyncComponent(
   () => import("./TicketTextEditor.vue")
 );
@@ -220,6 +221,7 @@ const attachments = ref([]);
 const templateFields = reactive({});
 // TATVA: null on the customer portal, else the ticket's grain fields once settled
 const grainFields = ref<Record<string, string> | null>(null);
+const scopeToGrain = useNewTicketPickers(grainFields, templateFields); // TATVA
 
 const template = createResource({
   url: "helpdesk.helpdesk.doctype.hd_ticket_template.api.get_one",
@@ -273,7 +275,9 @@ const visibleFields = computed(() => {
     (f) => !isCustomerPortal.value || !f.hide_from_customer
   );
   if (!_fields) return [];
-  return _fields.map((field) => parseField(field, templateFields));
+  return _fields.map((field) =>
+    scopeToGrain(parseField(field, templateFields))
+  ); // TATVA: the picked grain narrows each picker
 });
 
 function handleOnFieldChange(e: any, fieldname: string, fieldtype: string) {

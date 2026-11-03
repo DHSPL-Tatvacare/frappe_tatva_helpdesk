@@ -17,6 +17,7 @@ import { getMeta } from "@/stores/meta";
 import { capture } from "@/telemetry";
 import { __ } from "@/translation";
 import { copyToClipboard } from "@/utils";
+import { scopedOptions } from "@/tatva/ticketPickers"; // TATVA: line-scoped palette options
 import { createListResource, createResource, toast } from "frappe-ui";
 import { priorityOptions, statusOptions } from "./optionCommands";
 import {
@@ -311,21 +312,16 @@ async function teamChildren(ticketId: string): Promise<Command[]> {
   }));
 }
 
-const ticketTypes = createListResource({
-  doctype: "HD Ticket Type",
-  fields: ["name"],
-  pageLength: 100,
-});
-
+// TATVA: the types this ticket's business line offers, asked per ticket as its panel asks, each shown by its label
 async function ticketTypeChildren(ticketId: string): Promise<Command[]> {
-  if (!ticketTypes.data) await ticketTypes.reload();
+  const types = await scopedOptions(ticketId, "ticket_type", "HD Ticket Type");
   const current = useTicket(ticketId).ticket.doc?.ticket_type;
-  return (ticketTypes.data ?? []).map((type) => ({
-    id: `type-${type.name}`,
-    title: type.name,
+  return types.map((type) => ({
+    id: `type-${type.value}`,
+    title: type.label,
     group: "Set type",
-    checked: type.name === current,
-    perform: () => updateTicket(ticketId, { ticket_type: type.name }),
+    checked: type.value === current,
+    perform: () => updateTicket(ticketId, { ticket_type: type.value }),
   }));
 }
 

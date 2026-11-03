@@ -10,6 +10,7 @@ import type {
   TicketContact,
 } from "@/types";
 import type { HDTicket } from "@/types/doctypes";
+import type { TicketPickers } from "@/tatva/ticketPickers"; // TATVA
 import { createDocumentResource, createResource, toast } from "frappe-ui";
 import { reactive } from "vue";
 
@@ -22,6 +23,7 @@ interface MapValue {
   // shared by every timeline tab instance, fetched once per ticket
   calls: Resource<Record<string, any>[]>;
   commentExtras: Resource<TicketCommentExtras>;
+  pickers: Resource<TicketPickers>; // TATVA: what each picker may offer, and the titles of the values held (tatva/ticketPickers.ts)
   // lent by the mounted timeline; see registerTicketFeed
   reloadFeed?: () => void;
 }
@@ -95,6 +97,12 @@ export const useTicket = (ticketId: string | number): MapValue => {
         params: { ticket: ticketId },
         auto: true,
       }),
+      // TATVA: one call per ticket for every picker's grain filters and saved-value titles
+      pickers: createResource({
+        url: "tatva_connect.helpdesk.pickers.ticket_pickers",
+        params: { name: ticketId },
+        auto: true,
+      }),
     };
   }
 
@@ -106,6 +114,7 @@ export function reloadTicket(ticketId: string) {
   if (!ticketData) return;
   ticketData.ticket.reload();
   ticketData.assignees.reload();
+  ticketData.pickers.reload(); // TATVA: every save, ours or another agent's, arrives here through the ticket-update event
 }
 
 // The timeline owns its feed through useActivityTimeline, so anything outside it

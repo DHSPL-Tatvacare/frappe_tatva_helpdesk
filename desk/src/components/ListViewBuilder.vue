@@ -143,6 +143,7 @@
 </template>
 
 <script setup lang="ts">
+import { cellText } from "@/tatva/listTitles"; // TATVA: list cells show labels
 import { MultipleAvatar, StarRating } from "@/components";
 import {
   ColumnSettings,
@@ -580,7 +581,7 @@ function listCell(column: any, row: any, item: any, idx: number) {
   }
   return h("span", {
     class: "truncate flex-1",
-    textContent: item,
+    textContent: cellText(list.data, column, item), // TATVA: a grain-keyed value shows its label
   });
 }
 

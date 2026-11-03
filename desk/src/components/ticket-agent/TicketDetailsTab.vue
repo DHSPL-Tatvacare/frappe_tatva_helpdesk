@@ -156,6 +156,7 @@
 <script setup lang="ts">
 import { parseField } from "@/composables/formCustomisation";
 import { followDependencies, narrowField } from "@/tatva/fieldDependencies"; // TATVA: field dependencies on an open ticket
+import { scopeField } from "@/tatva/ticketPickers"; // TATVA: grain-scoped pickers and saved-value titles
 import RecordActionLinks from "@/tatva/record_actions/RecordActionLinks.vue"; // TATVA: record actions
 import { useNotifyTicketUpdate } from "@/composables/realtime";
 import { useShortcut } from "@/composables/shortcuts";
@@ -320,26 +321,29 @@ function openTicket(name: string) {
 }
 
 function getFieldInFormat(fieldTemplate, fieldMeta) {
-  // TATVA: a field a dependency narrows offers only what it allows
-  return narrowField(ticket.value.doc?.name, {
-    label: fieldMeta?.label || fieldTemplate.fieldname,
-    value: ticket.value.doc[fieldTemplate.fieldname],
-    fieldtype: fieldMeta?.fieldtype,
-    doctype: fieldMeta?.options || "",
-    options: fieldMeta?.options || "",
-    placeholder:
-      fieldTemplate.placeholder ||
-      `Set ${fieldMeta?.label || fieldTemplate.fieldname}...`,
-    readonly: Boolean(fieldMeta.read_only),
-    disabled: Boolean(fieldMeta.read_only),
-    url_method: fieldTemplate.url_method || "",
-    fieldname: fieldTemplate.fieldname,
-    required: fieldTemplate.required || fieldMeta?.required || false,
-    visible:
-      fieldMeta.display_via_depends_on &&
-      !fieldMeta.hidden &&
-      (!!ticket.value.doc[fieldTemplate.fieldname] || !fieldMeta.read_only),
-  });
+  // TATVA: a field takes the server's grain filters and title, then a dependency narrows it to what it allows
+  return narrowField(
+    ticket.value.doc?.name,
+    scopeField(ticket.value.doc?.name, {
+      label: fieldMeta?.label || fieldTemplate.fieldname,
+      value: ticket.value.doc[fieldTemplate.fieldname],
+      fieldtype: fieldMeta?.fieldtype,
+      doctype: fieldMeta?.options || "",
+      options: fieldMeta?.options || "",
+      placeholder:
+        fieldTemplate.placeholder ||
+        `Set ${fieldMeta?.label || fieldTemplate.fieldname}...`,
+      readonly: Boolean(fieldMeta.read_only),
+      disabled: Boolean(fieldMeta.read_only),
+      url_method: fieldTemplate.url_method || "",
+      fieldname: fieldTemplate.fieldname,
+      required: fieldTemplate.required || fieldMeta?.required || false,
+      visible:
+        fieldMeta.display_via_depends_on &&
+        !fieldMeta.hidden &&
+        (!!ticket.value.doc[fieldTemplate.fieldname] || !fieldMeta.read_only),
+    })
+  );
 }
 
 const normalize = (v: string | FieldValue) =>
