@@ -83,6 +83,11 @@ const props = defineProps({
     type: Object,
     default: null,
   },
+  // TATVA: the server's `link_query` for a filter on this field, sent to search_link as its query
+  query: {
+    type: String,
+    default: null,
+  },
   modelValue: {
     type: String,
     default: "",
@@ -175,6 +180,7 @@ function reload(val) {
       doctype: props.doctype,
       filters: props.filters,
       page_length: props.pageLength,
+      ...(props.query && { query: props.query }), // TATVA: a filter's query, from the server
     },
   });
   options.reload();
@@ -182,13 +188,14 @@ function reload(val) {
 
 const options = createResource({
   url: "frappe.desk.search.search_link",
-  cache: [props.doctype, text.value, props.hideMe],
+  cache: [props.doctype, text.value, props.hideMe, props.query], // TATVA: a label list and a key list never share a cache
   method: "POST",
   params: {
     txt: text.value,
     doctype: props.doctype,
     filters: props.filters,
     page_length: props.pageLength,
+    ...(props.query && { query: props.query }), // TATVA: a filter's query, from the server
   },
   transform: (data) => {
     let allData = data.map((option) => {
@@ -235,6 +242,7 @@ watch(
         doctype: props.doctype,
         filters: newVal,
         page_length: props.pageLength,
+        ...(props.query && { query: props.query }), // TATVA: a filter's query, from the server
       },
     });
     options.reload();

@@ -295,7 +295,8 @@ const dateRangeValue = computed(() =>
 // desk's sidebar mints Tag masters too; the picker only lists helpdesk's
 const linkSearch = useLinkSearch(
   linkDoctype(props.field),
-  props.field.options === "Tag" ? { app: "helpdesk" } : undefined
+  props.field.options === "Tag" ? { app: "helpdesk" } : undefined,
+  props.field.link_query // TATVA: the server's filter query for this field
 );
 
 // Link options are fetched from the server, so reflect the in-flight request

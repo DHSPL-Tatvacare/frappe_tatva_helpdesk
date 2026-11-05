@@ -154,11 +154,12 @@ export function normalizeFilters(raw: any): FilterCondition[] {
   });
 }
 
-export function useLinkSearch(doctype: string, filters?: Record<string, any>) {
+// TATVA: `query` is the server's `link_query` for a field (a label-identified master offers each label once), as the CRM's Filter reads it
+export function useLinkSearch(doctype: string, filters?: Record<string, any>, query?: string) {
   const results = createResource({
     url: "frappe.desk.search.search_link",
     method: "POST",
-    params: { txt: "", doctype, filters, page_length: 10 },
+    params: { txt: "", doctype, filters, page_length: 10, ...(query && { query }) },
     transform: (data: any[]) => {
       const options = data.map((option) => ({
         value: option.value,
@@ -174,7 +175,7 @@ export function useLinkSearch(doctype: string, filters?: Record<string, any>) {
 
   const search = useDebounceFn((txt: string) => {
     if (!doctype) return;
-    results.update({ params: { txt, doctype, filters, page_length: 10 } });
+    results.update({ params: { txt, doctype, filters, page_length: 10, ...(query && { query }) } });
     results.reload();
   }, 300);
 

@@ -16,6 +16,16 @@
     :placeholder="filter.label"
     @update:modelValue="(v) => updateFilter(filter, v || '')"
   />
+  <!-- TATVA: a field the server gives a filter query offers what that query answers, each label once -->
+  <FilterLink
+    v-else-if="filter.type === 'Link' && filter.link_query"
+    :model-value="props.value || ''"
+    :doctype="filter.options"
+    :query="filter.link_query"
+    :placeholder="filter.label"
+    class="!min-w-36 max-w-36"
+    @update:model-value="(value) => updateFilter(filter, value ?? '')"
+  />
   <Link
     v-else-if="filter.type === 'Link'"
     :model-value="props.value"
@@ -42,6 +52,7 @@
   />
 </template>
 <script setup>
+import FilterLink from "@/components/frappe-ui/Link.vue"; // TATVA: the Link that can send a filter query
 import { Link } from "@framework/ui";
 import { useDebounceFn } from "@vueuse/core";
 import { DatePicker, DateTimePicker, FormControl, TextInput } from "frappe-ui";
