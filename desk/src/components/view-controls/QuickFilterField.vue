@@ -23,6 +23,7 @@
     :doctype="filter.options"
     :query="filter.link_query"
     :placeholder="filter.label"
+    :title="props.value ? String(props.value) : undefined"
     class="!min-w-36 max-w-36"
     @update:model-value="(value) => updateFilter(filter, value ?? '')"
   />
